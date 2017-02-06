@@ -67,8 +67,7 @@ private:
 	void StopProcessing();
 
 	Steinberg::FUnknown* context;
-	// can stereo
-	bool can_stereo{ false };
+
 	// soft bypass
 	Steinberg::Vst::ParamID bypass_param_id{ std::numeric_limits<std::uint32_t>::max() };
 	// vst3 presets handling
@@ -91,6 +90,8 @@ private:
 	Steinberg::Vst::IEditController* edit_controller;
 	bool processor_component_initialized{ false };
 	bool edit_controller_initialized{ false };
+	// separation between edit controller and processor component classes
+	bool separated{ false };
 	Steinberg::Vst::IConnectionPoint* connection_point_component{ nullptr };
 	Steinberg::Vst::IConnectionPoint* connection_point_controller{ nullptr };
 	// audio related

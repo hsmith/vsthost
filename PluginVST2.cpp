@@ -13,6 +13,7 @@ PluginVST2::PluginVST2(HMODULE m, AEffect* p)
 	plugin->resvd1 = reinterpret_cast<VstIntPtr>(this);
 
 	// try setting correct number of inputs and outputs if there's a need
+	SetActive(false);
 	if (plugin->numInputs != 2 || plugin->numOutputs != 2) {
 		VstSpeakerArrangement in{}, out{};
 		in.numChannels = 2;
@@ -32,6 +33,10 @@ PluginVST2::PluginVST2(HMODULE m, AEffect* p)
 		out.speakers[1].name[0] = 'R';
 		out.speakers[1].name[1] = '\0';
 		Dispatcher(AEffectXOpcodes::effSetSpeakerArrangement, 0, reinterpret_cast<VstIntPtr>(&in), &out);
+		VstSpeakerArrangement* in_test = nullptr, *out_test = nullptr;
+		if (Dispatcher(AEffectXOpcodes::effGetSpeakerArrangement, 0, reinterpret_cast<VstIntPtr>(in_test), out_test)
+			&& in_test && in_test->numChannels == GetChannelCount() && out_test && out_test->numChannels == GetChannelCount())
+			can_stereo = true;
 	}
 }
 
@@ -48,7 +53,7 @@ Plugin::IsValidCodes PluginVST2::IsValid() const {
 	if (plugin) {
 		VstPlugCategory c = static_cast<VstPlugCategory>(plugin->dispatcher(plugin.get(), AEffectXOpcodes::effGetPlugCategory, 0, 0, nullptr, 0.));
 		if (c != kPlugCategSynth && c >= kPlugCategUnknown && c <= kPlugCategRestoration) {
-			if (plugin->numInputs == 2 && plugin->numOutputs == 2) {
+			if ((plugin->numInputs == 2 && plugin->numOutputs == 2) || can_stereo) {
 				if (plugin->magic == kEffectMagic)
 					return IsValidCodes::kValid;
 				else

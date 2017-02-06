@@ -73,6 +73,8 @@ protected:
 	std::mutex plugin_lock; // locked when plugin is processing or setting itself (in)active
 	bool active{ false };
 	bool bypass{ false };
+	// can stereo
+	bool can_stereo{ false };
 	Steinberg::Vst::TSamples block_size;
 	Steinberg::Vst::SampleRate sample_rate;
 	std::unique_ptr<Preset> state;

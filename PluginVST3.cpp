@@ -23,53 +23,57 @@ PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnkn
 	pd.outputParameterChanges = nullptr;
 	Steinberg::PClassInfo ci;
 	Steinberg::tresult result;
-	bool initialized = false;
 	for (decltype(factory->countClasses()) i = 0; i < factory->countClasses(); ++i) {
 		class_index = i;
 		factory->getClassInfo(class_index, &ci);
 		result = factory->createInstance(ci.cid, FUnknown::iid, reinterpret_cast<void**>(&plugin));
 		if (result == Steinberg::kResultOk && plugin) {
-			result = plugin->queryInterface(Steinberg::Vst::IComponent::iid, reinterpret_cast<void**>(&processor_component));
+			result = factory->createInstance(ci.cid, Steinberg::Vst::IComponent::iid, reinterpret_cast<void**>(&processor_component));
 			if (result == Steinberg::kResultOk && processor_component) {
-				result = plugin->queryInterface(Steinberg::Vst::IEditController::iid, reinterpret_cast<void**>(&edit_controller));
-				if (result != Steinberg::kResultOk && processor_component) {
+				processor_component_initialized = processor_component->initialize(context) == Steinberg::kResultOk;
+				result = processor_component->queryInterface(Steinberg::Vst::IEditController::iid, reinterpret_cast<void**>(&edit_controller));
+				if (result != Steinberg::kResultOk) {
+					separated = true;
 					Steinberg::FUID controllerCID;
 					if (processor_component->getControllerClassId(controllerCID) == Steinberg::kResultTrue && controllerCID.isValid())
 						result = factory->createInstance(controllerCID, Steinberg::Vst::IEditController::iid, (void**)&edit_controller);
 				}
-				if (result == Steinberg::kResultOk)
-					if (initialized = (processor_component->initialize(context) == Steinberg::kResultOk)) {
-						result = processor_component->queryInterface(Steinberg::Vst::IAudioProcessor::iid, reinterpret_cast<void**>(&audio));
-						processor_component_initialized = true;
-						Steinberg::Vst::BusInfo bi_in{}, bi_out{};
-						Steinberg::Vst::MediaType mt = Steinberg::Vst::MediaTypes::kAudio;
-						for (Steinberg::int32 i = 0; i < processor_component->getBusCount(mt, Steinberg::Vst::BusDirections::kInput); ++i) {
-							processor_component->getBusInfo(mt, Steinberg::Vst::BusDirections::kInput, i, bi_in);
-							if (bi_out.channelCount == GetChannelCount() && bi_in.busType == Steinberg::Vst::BusTypes::kMain)
-								break;
-						}
-						for (Steinberg::int32 i = 0; i < processor_component->getBusCount(mt, Steinberg::Vst::BusDirections::kOutput); ++i) {
-							processor_component->getBusInfo(mt, Steinberg::Vst::BusDirections::kOutput, i, bi_out);
-							if (bi_out.channelCount == GetChannelCount() && bi_out.busType == Steinberg::Vst::BusTypes::kMain)
-								break;
-						}
-						Steinberg::Vst::SpeakerArrangement sa = Steinberg::Vst::SpeakerArr::kStereo;
-						can_stereo = (bi_out.channelCount == GetChannelCount() && bi_in.channelCount == GetChannelCount()) 
-							|| audio->setBusArrangements(&sa, 1, &sa, 1) == Steinberg::kResultOk;
+				if (processor_component_initialized && result == Steinberg::kResultOk) {
+					edit_controller_initialized = edit_controller->initialize(context) == Steinberg::kResultOk;
+					result = processor_component->queryInterface(Steinberg::Vst::IAudioProcessor::iid, reinterpret_cast<void**>(&audio));
+					Steinberg::Vst::BusInfo bi_in{}, bi_out{};
+					Steinberg::Vst::MediaType mt = Steinberg::Vst::MediaTypes::kAudio;
+					for (Steinberg::int32 i = 0; i < processor_component->getBusCount(mt, Steinberg::Vst::BusDirections::kInput); ++i) {
+						processor_component->getBusInfo(mt, Steinberg::Vst::BusDirections::kInput, i, bi_in);
+						if (bi_out.channelCount == GetChannelCount() && bi_in.busType == Steinberg::Vst::BusTypes::kMain)
+							break;
 					}
+					for (Steinberg::int32 i = 0; i < processor_component->getBusCount(mt, Steinberg::Vst::BusDirections::kOutput); ++i) {
+						processor_component->getBusInfo(mt, Steinberg::Vst::BusDirections::kOutput, i, bi_out);
+						if (bi_out.channelCount == GetChannelCount() && bi_out.busType == Steinberg::Vst::BusTypes::kMain)
+							break;
+					}
+					Steinberg::Vst::SpeakerArrangement sa = Steinberg::Vst::SpeakerArr::kStereo;
+					can_stereo = (bi_out.channelCount == GetChannelCount() && bi_in.channelCount == GetChannelCount())
+						|| audio->setBusArrangements(&sa, 1, &sa, 1) == Steinberg::kResultOk;
+				}
 			}
 		}
 		if (IsValid() == IsValidCodes::kValid && result == Steinberg::kResultOk)
 			break;
-		if (initialized) {
+		if (processor_component_initialized) {
 			processor_component->terminate();
 			processor_component_initialized = false;
+			if (edit_controller_initialized) {
+				edit_controller->terminate();
+				edit_controller_initialized = false;
+			}
 		}
 		processor_component = nullptr;
 		edit_controller = nullptr;
 		audio = nullptr;
-		initialized = false;
 		can_stereo = false;
+		separated = false;
 	}
 }
 
@@ -95,15 +99,16 @@ PluginVST3::~PluginVST3() {
 		audio->release();
 	if (unit_info)
 		unit_info->release();
-	if (processor_component) {
-		if (processor_component_initialized)
-			processor_component->terminate();
-		processor_component->release();
-	}
 	if (edit_controller) {
+		edit_controller->setComponentHandler(0);
 		if (edit_controller_initialized)
 			edit_controller->terminate();
 		edit_controller->release();
+	}
+	if (processor_component && separated) {
+		if (processor_component_initialized)
+			processor_component->terminate();
+		processor_component->release();
 	}
 	if (plugin)
 		plugin->release();
@@ -144,9 +149,7 @@ void PluginVST3::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	block_size = bs;
 	sample_rate = sr;
 
-	// initialize edit controller (processor component is already initialized)
-	edit_controller->initialize(context);
-	edit_controller_initialized = true;
+	// set component handler for edit controller
 	edit_controller->setComponentHandler(this);
 
 	// check if plugin has editor and remember it
