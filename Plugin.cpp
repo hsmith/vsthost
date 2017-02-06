@@ -4,7 +4,7 @@
 #include "PluginWindow.h"
 
 namespace VSTHost {
-const std::string Plugin::kPluginDirectory{ ".\\plugins" };
+const std::string Plugin::kPluginDirectory{ ".\\..\\plugins" };
 
 Plugin::Plugin(HMODULE m) : module(m) {
 
@@ -57,7 +57,7 @@ bool Plugin::IsBypassed() const {
 	return bypass;
 }
 
-bool Plugin::IsGUICreated() {
+bool Plugin::IsGUICreated() const {
 	if (gui)
 		return true;
 	else

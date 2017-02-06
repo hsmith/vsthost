@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <thread>
 
 #include "VSTHostHeader.h"
 #include "Host.h"
@@ -105,27 +106,18 @@ void unprepare_header(int i) {
 	waveOutUnprepareHeader(out, &hdr[i], sizeof(WAVEHDR));
 }
 
+VSTHost::Host* h;
+int block_size;
+int bs_all_channels;
+int bs_all_channels_bytes;
+double sample_rate;
 
-int main() {
-	wave.Load("D:\\Development\\Praca In¿ynierska\\vsthost\\feed\\Amen-break.wav");
-	if (wave.data == nullptr)
-		return 1;
-	wave.Print();
-
-	int block_size = 4096;	
-	int bs_all_channels = block_size * wave.GetChannelCount();
-	int bs_all_channels_bytes = bs_all_channels * (wave.GetBitDepth() / 8);
-	double sample_rate = static_cast<double>(wave.GetSampleRate());
-	VSTHost::Host host(block_size, sample_rate);
-	host.LoadPluginList();
-	//host.CreateGUI();
-	host.CreateGUIThread();
-
+void play() {
 	// this player is bad, because for small block_sizes it just doesn't work well
 	init_player(bs_all_channels_bytes);
 	unsigned i = 0, pos = 0;
 
-	host.Process(wave.data, out_char[0], block_size);
+	h->Process(wave.data, out_char[0], block_size);
 	write_header(0);
 	while (true) {
 		i = (i + 1) % 2;
@@ -133,11 +125,28 @@ int main() {
 			pos = 0;	// ignoring (wave.size - pos - bs_all_channels_bytes) bytes
 		else
 			pos += bs_all_channels_bytes;
-		host.Process(wave.data + pos, out_char[i], block_size);
+		h->Process(wave.data + pos, out_char[i], block_size);
 		write_header(i);
 		unprepare_header(!i);
 	}
 	unprepare_header(i);
+}
 
-	std::cin.get();
+
+int main() {
+	wave.Load(".\\feed\\Amen-break.wav");
+	if (wave.data == nullptr)
+		return 1;
+	wave.Print();
+
+	block_size = 4096;	
+	bs_all_channels = block_size * wave.GetChannelCount();
+	bs_all_channels_bytes = bs_all_channels * (wave.GetBitDepth() / 8);
+	sample_rate = static_cast<double>(wave.GetSampleRate());
+	VSTHost::Host host(block_size, sample_rate);
+	h = &host;
+	host.LoadPluginList();
+	std::thread processing(play);
+	host.CreateGUI();
+	processing.join();
 }
