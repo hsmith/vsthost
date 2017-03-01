@@ -84,6 +84,7 @@ private:
 	void ProcessOutputParameterChanges();
 	Steinberg::int32 current_param_idx, offset;
 	ParameterValueQueue* current_queue;
+	std::mutex queue_lock;
 	// has editor flag for optimization
 	bool has_editor{ false };
 	Steinberg::IPlugView* plugin_view{ nullptr };

@@ -285,8 +285,11 @@ void PluginVST3::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sampl
 		pd.inputs->channelBuffers32 = input;
 		pd.outputs->channelBuffers32 = output;
 		pd.numSamples = block_size;
-		if (current_queue && current_queue->GetIndex() == -1)
-			pd.inputParameterChanges->addParameterData(current_queue->getParameterId(), current_param_idx);
+		{
+			std::lock_guard<std::mutex> lock(queue_lock);
+			if (current_queue && current_queue->GetIndex() == -1)
+				pd.inputParameterChanges->addParameterData(current_queue->getParameterId(), current_param_idx);
+		}
 		audio->process(pd);
 		if (!bypass) {
 			ProcessOutputParameterChanges();
@@ -456,8 +459,11 @@ Steinberg::tresult PLUGIN_API PluginVST3::performEdit(Steinberg::Vst::ParamID id
 Steinberg::tresult PLUGIN_API PluginVST3::endEdit(Steinberg::Vst::ParamID id) {
 	if (current_queue) {
 		pd.inputParameterChanges->addParameterData(id, current_param_idx);
-		current_queue = nullptr;
-		current_param_idx = -1;
+		{
+			std::lock_guard<std::mutex> lock(queue_lock);
+			current_queue = nullptr;
+			current_param_idx = -1;
+		}
 		offset = 0;
 	}
 	return Steinberg::kResultTrue;
