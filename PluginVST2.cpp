@@ -42,7 +42,7 @@ PluginVST2::PluginVST2(HMODULE m, AEffect* p)
 
 PluginVST2::~PluginVST2() {
 	SetActive(false);
-	gui.reset();	// gui and state have to be destroyed before the rest of the plugin is freed
+	editor.reset();	// gui and state have to be destroyed before the rest of the plugin is freed
 	state.reset();
 	Dispatcher(AEffectOpcodes::effClose);
 	// turns out offClose opcode handles freeing AEffect object and I musn't do that
@@ -100,6 +100,26 @@ std::basic_string<TCHAR> PluginVST2::GetPluginName() const {
 	}
 }
 
+std::string PluginVST2::GetPluginNameA() const {
+	std::string ret;
+	char name[kVstMaxProductStrLen] = { 0 }; // vst2 does not support unicode
+	if (plugin->dispatcher(plugin.get(), AEffectXOpcodes::effGetEffectName, 0, 0, reinterpret_cast<void*>(name), 0.) ||
+		plugin->dispatcher(plugin.get(), AEffectXOpcodes::effGetProductString, 0, 0, reinterpret_cast<void*>(name), 0.)) {
+		ret = name;
+	}
+	else {
+		char buf[MAX_PATH] = { 0 };
+		GetModuleFileNameA(module, buf, MAX_PATH);
+		ret = buf;
+		std::string::size_type pos = 0;
+		if ((pos = ret.find_last_of('\\')) != std::string::npos)
+			ret = ret.substr(pos + 1);
+		if ((pos = ret.find_last_of('.')) != std::string::npos)
+			ret = ret.substr(0, pos);
+	}
+	return ret;
+}
+
 void PluginVST2::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) {
 	if (IsActive() && !BypassProcess()) {
 		std::lock_guard<std::mutex> lock(plugin_lock);
@@ -146,6 +166,25 @@ void PluginVST2::SetProgram(Steinberg::int32 id) {
 	Dispatcher(AEffectXOpcodes::effEndSetProgram);
 }
 
+std::basic_string<TCHAR> PluginVST2::GetProgramName(Steinberg::int32 id) {
+	auto s = GetProgramNameA(id); // VST2 program names are in ASCII only
+	return std::basic_string<TCHAR>(s.begin(), s.end());
+}
+
+std::string PluginVST2::GetProgramNameA(Steinberg::int32 id) {
+	char tmp[kVstMaxProgNameLen + 1] = { 0 };
+	auto current_program = Dispatcher(AEffectOpcodes::effGetProgram);
+	bool program_changed = false;
+	if (!Dispatcher(AEffectXOpcodes::effGetProgramNameIndexed, id, 0, tmp)) {
+		SetProgram(id);
+		Dispatcher(AEffectOpcodes::effGetProgramName, 0, 0, tmp);
+		program_changed = true;
+	}
+	if (program_changed)
+		SetProgram(current_program);
+	return std::string(tmp);
+}
+
 Steinberg::int32 PluginVST2::GetParameterCount() const {
 	return plugin->numParams;
 }
@@ -174,10 +213,50 @@ bool PluginVST2::HasEditor() const {
 	return static_cast<bool>(plugin->flags & effFlagsHasEditor);
 }
 
-void PluginVST2::CreateEditor(HWND hWnd) {
-	if (!gui && HasEditor()) {
-		gui = std::unique_ptr<PluginWindow>(new PluginVST2Window(*this));
-		gui->Initialize(hWnd);
+void PluginVST2::CreateEditor(HWND hwnd) {
+	if (HasEditor() && !is_editor_created) {
+		if (hwnd != NULL) { // editor will be created in a third party window
+			this->hwnd = hwnd;
+			Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
+		}
+		else { // editor will be created via PluginWindow class
+			editor = std::unique_ptr<PluginWindow>(new PluginVST2Window(*this));
+			editor->Initialize();
+			this->hwnd = editor->GetHWND();
+		}
+		is_editor_created = true;
+	}
+}
+
+Steinberg::uint32 PluginVST2::GetEditorHeight() {
+	ERect* erect = nullptr;
+	Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
+	if (erect)
+		return erect->bottom - erect->top;
+	else
+		return 0;
+}
+
+Steinberg::uint32 PluginVST2::GetEditorWidth() {
+	ERect* erect = nullptr;
+	Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
+	if (erect)
+		return erect->right - erect->left;
+	else
+		return 0;
+}
+
+void PluginVST2::ShowEditor() {
+	if (is_editor_created) {
+		Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
+		Plugin::ShowEditor();
+	}
+}
+
+void PluginVST2::HideEditor() {
+	if (is_editor_created) {
+		Dispatcher(AEffectOpcodes::effEditClose, 0, 0, hwnd);
+		Plugin::HideEditor();
 	}
 }
 
@@ -287,8 +366,8 @@ VstIntPtr VSTCALLBACK PluginVST2::HostCallback(AEffect *effect, VstInt32 opcode,
 			return 1;
 		}
 		case AudioMasterOpcodesX::audioMasterUpdateDisplay:
-			if (gui)
-				gui->Refresh();
+			if (editor)
+				editor->Refresh();
 			return 1;
 		case AudioMasterOpcodesX::audioMasterBeginEdit:
 			//index

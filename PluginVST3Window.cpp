@@ -4,12 +4,14 @@
 #include "base/source/fstring.h"
 
 namespace VSTHost {
-PluginVST3Window::PluginVST3Window(PluginVST3& p, Steinberg::IPlugView* pv) : PluginWindow(100, 100, p), plugin_view(pv) {}
+PluginVST3Window::PluginVST3Window(PluginVST3& p, Steinberg::IPlugView* pv) : PluginWindow(100, 100, p), plugin_view(pv) {
+	plugin_view->addRef();
+}
 
 PluginVST3Window::~PluginVST3Window() {
 	if (plugin_view) {
-		plugin_view->removed();
 		plugin_view->release();
+		plugin_view = nullptr;
 	}
 }
 
@@ -40,9 +42,9 @@ bool PluginVST3Window::Initialize(HWND parent) {
 		SetRect();
 		wnd = ::CreateWindow(kClassName, plugin.GetPluginName().c_str(), WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			rect.left, rect.top, rect.right, rect.bottom, 
-			NULL/*parent*/, menu = CreateMenu(), ::GetModuleHandle(NULL), static_cast<LPVOID>(this));
-		if (wnd)	// i'm setting parent hwnd to null, because child window are displayed in front of parend window
-			plugin_view->attached(static_cast<void*>(wnd), Steinberg::kPlatformTypeHWND);	// and it doesn't look right
+			NULL, menu = CreateMenu(), ::GetModuleHandle(NULL), static_cast<LPVOID>(this));
+		if (wnd)
+			plugin_view->attached(static_cast<void*>(wnd), Steinberg::kPlatformTypeHWND);
 		return wnd != NULL;
 	}
 	else
@@ -84,22 +86,11 @@ HMENU PluginVST3Window::CreateMenu() const {
 	HMENU hstate = ::CreateMenu();
 	::AppendMenu(hstate, MF_STRING, MenuItem::Save, TEXT("Save"));
 	::AppendMenu(hstate, MF_STRING, MenuItem::Load, TEXT("Load"));
-	::AppendMenu(hstate, MF_STRING, MenuItem::SaveToFile, TEXT("Save To File"));
-	::AppendMenu(hstate, MF_STRING, MenuItem::LoadFromFile, TEXT("Load From File"));
 	::AppendMenu(hmenu, MF_POPUP, (UINT_PTR)hstate, TEXT("State"));
 	// preset submenu
 	HMENU hpresets = ::CreateMenu();
-	PluginVST3& p = dynamic_cast<PluginVST3&>(plugin);
-	Steinberg::Vst::ProgramListInfo list_info{};
-	for (Steinberg::int32 i = 0; i < plugin.GetProgramCount(); ++i) {
-		if (p.unit_info->getProgramListInfo(0, list_info) == Steinberg::kResultTrue) {
-			Steinberg::Vst::String128 tmp = { 0 };
-			if (p.unit_info->getProgramName(list_info.id, i, tmp) == Steinberg::kResultTrue) {
-				Steinberg::String str(tmp);
-				::AppendMenuW(hpresets, MF_STRING, MenuItem::Preset + i, str.text16());
-			}
-		}
-	}
+	for (Steinberg::int32 i = 0; i < plugin.GetProgramCount(); ++i)
+		::AppendMenu(hpresets, MF_STRING, MenuItem::Preset + i, plugin.GetProgramName(i).c_str());
 	::AppendMenu(hmenu, plugin.GetProgramCount() > 0 ? MF_POPUP : MF_POPUP | MF_GRAYED, (UINT_PTR)hpresets, TEXT("Plugin"));
 	return hmenu;
 }

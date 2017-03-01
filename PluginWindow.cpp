@@ -32,6 +32,9 @@ bool PluginWindow::IsActive() const {
 	return is_active;
 }
 
+HWND PluginWindow::GetHWND() const {
+	return wnd;
+}
 
 LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	switch (Msg) {
@@ -67,13 +70,6 @@ LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 					break;
 				case MenuItem::Save:
 					plugin.SaveState();
-					break;
-				case MenuItem::LoadFromFile:
-					plugin.LoadStateFromFile();
-					InvalidateRect(hWnd, NULL, false);
-					break;
-				case MenuItem::SaveToFile:
-					plugin.SaveStateToFile();
 					break;
 				default:
 					break;

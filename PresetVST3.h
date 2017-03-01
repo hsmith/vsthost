@@ -17,11 +17,13 @@ class PresetVST3 : public Preset {
 public:
 	PresetVST3(PluginVST3& p);
 	~PresetVST3();
-	void SetState();
-	void LoadFromFile();
-	void GetState();
-	void SaveToFile();
+	bool Load();
+	bool Load(const std::string& path);
+	bool Save();
+	bool Save(const std::string& path);
 private:
+	void SetState();
+	void GetState();
 	Steinberg::MemoryStream edit_stream, processor_stream;
 	static const std::string kExtension;
 	Steinberg::FUID fuid;

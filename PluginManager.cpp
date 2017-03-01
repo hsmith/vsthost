@@ -59,6 +59,7 @@ bool PluginManager::Add(const std::string& path) {
 	if (plugin) { // host now owns what plugin points at
 		std::cout << "Loaded " << path << "." << std::endl;
 		plugin->Initialize(def_block_size, def_sample_rate);
+		plugin->LoadState();
 		plugins.push_back(std::move(plugin));
 		return true;
 	}
@@ -82,14 +83,13 @@ const std::string& PluginManager::GetDefaultPluginListPath() const {
 }
 
 bool PluginManager::LoadPluginList(const std::string& path) {
+	plugins.clear();
 	std::string line;
 	std::ifstream list(path);
 	if (list.is_open()) {
 		while (getline(list, line))
 			if (!line.empty())
 				Add(line);
-		for (decltype(Size()) i = 0; i < Size(); ++i)
-			GetAt(i).LoadStateFromFile();
 		list.close();
 		return true;
 	}

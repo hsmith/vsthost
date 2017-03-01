@@ -25,7 +25,7 @@ class HostWindow : public Window {
 	void SetFont();
 	size_t GetPluginSelection();
 public:
-	HostWindow(PluginManager& pm);
+	HostWindow(HostController hc);
 	~HostWindow();
 	bool Initialize(HWND parent);
 	void CreateEditors();
@@ -40,7 +40,7 @@ private:
 	HWND plugin_list;
 	HWND buttons[Items::BUTTON_COUNT];
 	std::unique_ptr<OPENFILENAMEA> ofn;
-	PluginManager& plugins;
+	HostController host_ctrl;
 };
 } // namespace
 

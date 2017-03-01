@@ -6,7 +6,6 @@
 namespace VSTHost {
 class PluginVST2;
 class PluginVST2Window : public PluginWindow {
-	bool Initialize();
 public:
 	PluginVST2Window(PluginVST2& p);
 	~PluginVST2Window() {}

@@ -10,7 +10,7 @@ PluginVST2Window::PluginVST2Window(PluginVST2& p) : PluginWindow(100, 100, p) {
 }
 
 void PluginVST2Window::SetRect() {
-	ERect* erect = nullptr; // do i free this or what?
+	ERect* erect = nullptr;
 	if (dynamic_cast<PluginVST2&>(plugin).Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect)) {
 		size_x = erect->right - erect->left;
 		size_y = erect->bottom - erect->top;
@@ -42,16 +42,16 @@ bool PluginVST2Window::Initialize(HWND parent) {
 	if (RegisterWC(kClassName)) {
 		SetRect();
 		wnd = ::CreateWindow(kClassName, plugin.GetPluginName().c_str(), WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-			rect.left, rect.top, rect.right, rect.bottom, NULL/*parent*/, menu = CreateMenu(), ::GetModuleHandle(NULL), (LPVOID)this);
-		return wnd != NULL; // i'm setting parent hwnd to null, because child window are displayed in front of parend window
-	}						// and it doesn't look right
-	else return false;
+			rect.left, rect.top, rect.right, rect.bottom, NULL, menu = CreateMenu(), ::GetModuleHandle(NULL), (LPVOID)this);
+		return wnd != NULL;
+	}
+	else 
+		return false;
 }
 
 void PluginVST2Window::Show() {
 	if (wnd) {
 		is_active = true;
-		dynamic_cast<PluginVST2&>(plugin).Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, wnd);
 		ERect* erect = nullptr;
 		dynamic_cast<PluginVST2&>(plugin).Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
 		if (erect->right - erect->left != size_x || erect->bottom - erect->top != size_y) {
@@ -65,7 +65,6 @@ void PluginVST2Window::Show() {
 void PluginVST2Window::Hide() {
 	if (wnd) {
 		is_active = false;
-		dynamic_cast<PluginVST2&>(plugin).Dispatcher(AEffectOpcodes::effEditClose, 0, 0, wnd);
 		Window::Hide();
 	}
 }
@@ -85,8 +84,6 @@ HMENU PluginVST2Window::CreateMenu() const {
 	HMENU hstate = ::CreateMenu();
 	::AppendMenu(hstate, MF_STRING, MenuItem::Save, TEXT("Save"));
 	::AppendMenu(hstate, MF_STRING, MenuItem::Load, TEXT("Load"));
-	::AppendMenu(hstate, MF_STRING, MenuItem::SaveToFile, TEXT("Save To File"));
-	::AppendMenu(hstate, MF_STRING, MenuItem::LoadFromFile, TEXT("Load From File"));
 	::AppendMenu(hmenu, MF_POPUP, (UINT_PTR)hstate, TEXT("State"));
 	// preset submenu
 	HMENU hpresets = ::CreateMenu();

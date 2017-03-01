@@ -9,13 +9,14 @@ class PluginWindow : public Window {
 public:
 	PluginWindow(int width, int height, Plugin& p);
 	virtual ~PluginWindow();
-	virtual bool Initialize(HWND parent) = 0;
+	virtual bool Initialize(HWND parent = NULL) = 0;
 	virtual void SetRect() = 0;
 	bool IsActive() const;
+	HWND GetHWND() const;
 protected:
 	enum MenuItem {
 		Bypass = 10000, Active, Close, 
-		State, Load, Save, LoadFromFile, SaveToFile, 
+		State, Load, Save, 
 		Presets, Preset = 20000
 	};
 	void ApplyOffset();

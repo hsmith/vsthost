@@ -35,12 +35,15 @@ public:
 	IsValidCodes IsValid() const;
 	void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr);
 	std::basic_string<TCHAR> GetPluginName() const;
+	std::string GetPluginNameA() const;
 	void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size);
 	void SetBlockSize(Steinberg::Vst::TSamples bs);
 	void SetSampleRate(Steinberg::Vst::SampleRate sr);
 	// presets
 	Steinberg::int32 GetProgramCount() const;
 	void SetProgram(Steinberg::int32 id);
+	std::basic_string<TCHAR> GetProgramName(Steinberg::int32 id);
+	std::string GetProgramNameA(Steinberg::int32 id);
 	// parameters
 	Steinberg::int32 GetParameterCount() const;
 	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const;
@@ -50,8 +53,9 @@ public:
 	bool BypassProcess() const;
 	// editor
 	bool HasEditor() const;
-	void CreateEditor(HWND hWnd);
-
+	void CreateEditor(HWND hwnd);
+	Steinberg::uint32 GetEditorHeight();
+	Steinberg::uint32 GetEditorWidth();
 	// vst3 interfaces specific
 	Steinberg::tresult PLUGIN_API beginEdit(Steinberg::Vst::ParamID id);
 	Steinberg::tresult PLUGIN_API performEdit(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue valueNormalized);
@@ -82,6 +86,7 @@ private:
 	ParameterValueQueue* current_queue;
 	// has editor flag for optimization
 	bool has_editor{ false };
+	Steinberg::IPlugView* plugin_view{ nullptr };
 	// vst3 general
 	Steinberg::int32 class_index; // index of the class produced by factory which is valid 
 	Steinberg::IPluginFactory* factory;

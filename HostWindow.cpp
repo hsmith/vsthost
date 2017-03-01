@@ -22,7 +22,7 @@ const int HostWindow::kButtonWidth = 120;
 const int HostWindow::kButtonHeight = 30;
 bool HostWindow::registered = false;
 
-HostWindow::HostWindow(PluginManager& pm) : Window(kWindowWidth, kWindowHeight), font(NULL), plugins(pm) { }
+HostWindow::HostWindow(HostController hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(hc) { }
 
 HostWindow::~HostWindow() {
 	if (font)
@@ -33,7 +33,6 @@ HostWindow::~HostWindow() {
 	if (plugin_list)
 		::DestroyWindow(plugin_list);
 	// wnd freed through base class dtor
-	// unregistering class seems not worth it
 }
 
 bool HostWindow::RegisterWC(const TCHAR* class_name) {
@@ -83,9 +82,10 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					break;
 				case Items::Delete:
 					if (HIWORD(wParam) == BN_CLICKED) {
-						const auto sel = GetPluginSelection(), count = plugins.Size();
+						const auto sel = GetPluginSelection();
+						const auto count = host_ctrl.GetPluginCount();
 						if (sel < count) {
-							plugins.Delete(sel);
+							host_ctrl.DeletePlugin(sel);
 							PopulatePluginList();
 							if (sel == count - 1)
 								SelectPlugin(sel - 1);
@@ -97,8 +97,8 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				case Items::Up:
 					if (HIWORD(wParam) == BN_CLICKED) {
 						const auto sel = GetPluginSelection();
-						if (sel > 0 && sel < plugins.Size()) {
-							plugins.Swap(sel, sel - 1);
+						if (sel > 0 && sel < host_ctrl.GetPluginCount()) {
+							host_ctrl.MoveUp(sel);
 							PopulatePluginList();
 							SelectPlugin(sel - 1);
 						}
@@ -107,8 +107,8 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				case Items::Down:
 					if (HIWORD(wParam) == BN_CLICKED) {
 						const auto sel = GetPluginSelection();
-						if (sel < plugins.Size() - 1) {
-							plugins.Swap(sel, sel + 1);
+						if (sel < host_ctrl.GetPluginCount() - 1) {
+							host_ctrl.MoveDown(sel);
 							PopulatePluginList();
 							SelectPlugin(sel + 1);
 						}
@@ -121,10 +121,8 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				case Items::Show:
 					if (HIWORD(wParam) == BN_CLICKED) {
 						const auto sel = GetPluginSelection();
-						if (sel < plugins.Size() && plugins[sel].HasEditor()) {
-							if (!plugins[sel].IsGUICreated())
-								plugins[sel].CreateEditor(wnd);
-							plugins[sel].ShowEditor();
+						if (sel < host_ctrl.GetPluginCount() && host_ctrl.HasEditor(sel)) {
+							host_ctrl.ShowEditor(sel);
 							EnableWindow(buttons[Items::Show], false);
 							EnableWindow(buttons[Items::Hide], true);
 						}
@@ -133,8 +131,8 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				case Items::Hide:
 					if (HIWORD(wParam) == BN_CLICKED) {
 						auto sel = GetPluginSelection();
-						if (sel < plugins.Size() && plugins[sel].HasEditor()) {
-							plugins[sel].HideEditor();
+						if (sel < host_ctrl.GetPluginCount() && host_ctrl.HasEditor(sel)) {
+							host_ctrl.HideEditor(sel);
 							EnableWindow(buttons[Items::Show], true);
 							EnableWindow(buttons[Items::Hide], false);
 						}
@@ -142,7 +140,7 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					break;
 				case Items::Save:
 					if (HIWORD(wParam) == BN_CLICKED)
-						plugins.SavePluginList();
+						host_ctrl.SavePluginList();
 				default:
 					break;
 			}
@@ -162,8 +160,8 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 void HostWindow::PopulatePluginList() {
 	if (plugin_list) {
 		SendMessage(plugin_list, LB_RESETCONTENT, NULL, NULL);
-		for (decltype(plugins.Size()) i = 0; i < plugins.Size(); ++i) {
-			int pos = SendMessage(plugin_list, LB_ADDSTRING, 0, (LPARAM)plugins[i].GetPluginName().c_str());
+		for (decltype(host_ctrl.GetPluginCount()) i = 0; i < host_ctrl.GetPluginCount(); ++i) {
+			int pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl.GetPluginName(i).c_str());
 			SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)i);
 		}
 	}
@@ -193,9 +191,9 @@ void HostWindow::OpenDialog() {
 	}
 	ofn->lpstrFile = filename;
 	if (::GetOpenFileNameA(ofn.get())) {
-		const auto count = plugins.Size();
-		if (plugins.Add(std::string(filename))) {
-			plugins.Back().CreateEditor(wnd);
+		const auto count = host_ctrl.GetPluginCount();
+		if (host_ctrl.AddPlugin(std::string(filename))) {
+			host_ctrl.CreateEditor(host_ctrl.GetPluginCount() - 1, NULL);
 			PopulatePluginList();
 			SelectPlugin(count);
 		}
@@ -206,7 +204,7 @@ void HostWindow::SelectPlugin(size_t i) {
 	if (plugin_list) {
 		SendMessage(plugin_list, LB_SETCURSEL, i, 0);
 		SetFocus(plugin_list);
-		auto count = plugins.Size();
+		auto count = host_ctrl.GetPluginCount();
 		if (count >= 2) {
 			EnableWindow(buttons[Items::Up], i > 0);
 			EnableWindow(buttons[Items::Down], i < count - 1);
@@ -221,8 +219,8 @@ void HostWindow::SelectPlugin(size_t i) {
 			EnableWindow(buttons[Items::Delete], false);
 		}
 		else {
-			EnableWindow(buttons[Items::Show], plugins[i].HasEditor() && !plugins[i].IsEditorVisible());
-			EnableWindow(buttons[Items::Hide], plugins[i].IsEditorVisible());
+			EnableWindow(buttons[Items::Show], host_ctrl.HasEditor(i) && !host_ctrl.IsEditorShown(i));
+			EnableWindow(buttons[Items::Hide], host_ctrl.HasEditor(i) && host_ctrl.IsEditorShown(i));
 			EnableWindow(buttons[Items::Delete], true);
 		}
 	}
@@ -236,7 +234,7 @@ size_t HostWindow::GetPluginSelection() {
 }
 
 void HostWindow::CreateEditors() {
-	for (decltype(plugins.Size()) i = 0; i < plugins.Size(); ++i)
-		plugins[i].CreateEditor(wnd);
+	for (decltype(host_ctrl.GetPluginCount()) i = 0; i < host_ctrl.GetPluginCount(); ++i)
+		host_ctrl.CreateEditor(i, NULL);
 }
 } // namespace

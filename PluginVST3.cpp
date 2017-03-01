@@ -79,7 +79,11 @@ PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnkn
 
 PluginVST3::~PluginVST3() {
 	SetActive(false);
-	gui.reset();  // gui and state have to be destroyed before the rest of the plugin is freed
+	editor.reset();  // gui and state have to be destroyed before the rest of the plugin is freed
+	if (plugin_view) {
+		plugin_view->removed();
+		plugin_view->release();
+	}
 	state.reset();
 	if (connection_point_component && connection_point_controller) {
 		connection_point_component->disconnect(connection_point_controller);
@@ -151,15 +155,6 @@ void PluginVST3::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 
 	// set component handler for edit controller
 	edit_controller->setComponentHandler(this);
-
-	// check if plugin has editor and remember it
-	//auto tmp = edit_controller->createView(Steinberg::Vst::ViewType::kEditor);
-	//has_editor = tmp != nullptr;
-	//if (tmp)
-	//	tmp->release();
-	// some plugins can't create editor twice, so theres no way of telling if they have it
-	// so i will assume they do have the editor and potentially update has_editor later
-	has_editor = true;
 
 	// check for bypass parameter (soft bypass) and for preset change parameter
 	Steinberg::Vst::ParameterInfo pi;
@@ -265,6 +260,10 @@ void PluginVST3::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	
 	// create plugin state module
 	state = std::unique_ptr<Preset>(new PresetVST3(*this));
+
+	// check if plugin has editor and remember it
+	plugin_view = edit_controller->createView(Steinberg::Vst::ViewType::kEditor);
+	has_editor = plugin_view != nullptr;
 }
 
 std::basic_string<TCHAR> PluginVST3::GetPluginName() const {
@@ -272,6 +271,12 @@ std::basic_string<TCHAR> PluginVST3::GetPluginName() const {
 	factory->getClassInfo(class_index, &ci); 
 	std::string tmp(ci.name); // for some reason ci.name is single byte ASCII too
 	return std::basic_string<TCHAR>(tmp.begin(), tmp.end());
+}
+
+std::string PluginVST3::GetPluginNameA() const {
+	Steinberg::PClassInfo ci;
+	factory->getClassInfo(class_index, &ci);
+	return std::string(ci.name);
 }
 
 void PluginVST3::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) {
@@ -342,6 +347,34 @@ void PluginVST3::SetProgram(Steinberg::int32 id) {
 	}
 }
 
+std::basic_string<TCHAR> PluginVST3::GetProgramName(Steinberg::int32 id) {
+	Steinberg::Vst::ProgramListInfo list_info{};
+	if (unit_info->getProgramListInfo(0, list_info) == Steinberg::kResultTrue) {
+		Steinberg::Vst::String128 tmp = { 0 };
+		if (unit_info->getProgramName(list_info.id, id, tmp) == Steinberg::kResultTrue) {
+			Steinberg::String str(tmp);
+#ifdef UNICODE
+			return str.text16();
+#else
+			return str.text8();
+#endif
+		}
+	}
+	return std::basic_string<TCHAR>();
+}
+
+std::string PluginVST3::GetProgramNameA(Steinberg::int32 id) {
+	Steinberg::Vst::ProgramListInfo list_info{};
+	if (unit_info->getProgramListInfo(0, list_info) == Steinberg::kResultTrue) {
+		Steinberg::Vst::String128 tmp = { 0 };
+		if (unit_info->getProgramName(list_info.id, id, tmp) == Steinberg::kResultTrue) {
+			Steinberg::String str(tmp);
+			return str.text8();
+		}
+	}
+	return "";
+}
+
 Steinberg::int32 PluginVST3::GetParameterCount() const {
 	return edit_controller->getParameterCount();
 }
@@ -375,16 +408,37 @@ bool PluginVST3::HasEditor() const {
 	return has_editor;
 }
 
-void PluginVST3::CreateEditor(HWND hWnd) {
-	if (!gui && HasEditor()) {
-		Steinberg::IPlugView* create_view = nullptr;
-		if ((create_view = edit_controller->createView(Steinberg::Vst::ViewType::kEditor)) != nullptr) {
-			gui = std::unique_ptr<PluginWindow>(new PluginVST3Window(*this, create_view));
-			gui->Initialize(hWnd);
+void PluginVST3::CreateEditor(HWND hwnd) {
+	if (HasEditor() && !is_editor_created) {
+		if (hwnd != NULL) { // editor will be created in a third party window
+			plugin_view->attached(hwnd, Steinberg::kPlatformTypeHWND);
 		}
-		else
-			has_editor = false;
+		else { // editor will be created via PluginWindow class
+			editor = std::unique_ptr<PluginWindow>(new PluginVST3Window(*this, plugin_view));
+			editor->Initialize();
+		}
+		is_editor_created = true;
 	}
+}
+
+Steinberg::uint32 PluginVST3::GetEditorHeight() {
+	if (plugin_view) {
+		Steinberg::ViewRect vr;
+		plugin_view->getSize(&vr);
+		return vr.getHeight();
+	}
+	else
+		return 0;
+}
+
+Steinberg::uint32 PluginVST3::GetEditorWidth() {
+	if (plugin_view) {
+		Steinberg::ViewRect vr;
+		plugin_view->getSize(&vr);
+		return vr.getWidth();
+	}
+	else
+		return 0;
 }
 
 Steinberg::tresult PLUGIN_API PluginVST3::beginEdit(Steinberg::Vst::ParamID id) {

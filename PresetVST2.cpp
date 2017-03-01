@@ -49,16 +49,13 @@ PresetVST2::~PresetVST2() {
 		delete[] reinterpret_cast<char*>(program);
 }
 
-void PresetVST2::SetState() {
-	if (ProgramChunks())
-		plugin.Dispatcher(AEffectOpcodes::effSetChunk, 1, program->content.data.size, &program->content.data.chunk);
-	else
-		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); i++)
-			plugin.SetParameter(i, program->content.params[i]);
+bool PresetVST2::Load() {
+	return Load(preset_file_path);
 }
 
-void PresetVST2::LoadFromFile() {
-	std::ifstream file(preset_file_path, std::ifstream::binary | std::ifstream::in);
+bool PresetVST2::Load(const std::string& path) {
+	bool ret = false;
+	std::ifstream file(path, std::ifstream::binary | std::ifstream::in);
 	if (file.is_open()) {
 		fxProgram in{};
 		auto const head_size = sizeof(in.chunkMagic) + sizeof(in.byteSize);
@@ -91,6 +88,7 @@ void PresetVST2::LoadFromFile() {
 							memcpy(program->content.data.chunk, in_chunk.get(), program->content.data.size);
 							memcpy(program->prgName, in.prgName, sizeof(program->prgName));
 							SetState();
+							ret = true;
 						}
 					}
 				}
@@ -108,12 +106,42 @@ void PresetVST2::LoadFromFile() {
 						for (i = 0; i < program->numParams; ++i)
 							program->content.params[i] = params[i];
 						SetState();
+						ret = true;
 					}
 				}
 			}
 		}
 		file.close();
 	}
+	return ret;
+}
+
+bool PresetVST2::Save() {
+	return Save(preset_file_path);
+}
+
+bool PresetVST2::Save(const std::string& path) {
+	bool ret = false;
+	GetState();
+	std::ofstream file(path, std::ofstream::binary | std::ofstream::out | std::ofstream::trunc);
+	if (file.is_open()) {
+		if (SwapNeeded())
+			SwapProgram();
+		file.write(reinterpret_cast<char*>(program), fxprogram_size);
+		if (SwapNeeded())
+			SwapProgram();
+		ret = true;
+		file.close();
+	}
+	return ret;
+}
+
+void PresetVST2::SetState() {
+	if (ProgramChunks())
+		plugin.Dispatcher(AEffectOpcodes::effSetChunk, 1, program->content.data.size, &program->content.data.chunk);
+	else
+		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); i++)
+			plugin.SetParameter(i, program->content.params[i]);
 }
 
 void PresetVST2::GetState() {
@@ -128,19 +156,6 @@ void PresetVST2::GetState() {
 	else
 		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); i++)
 			program->content.params[i] = plugin.GetParameter(i);
-}
-
-void PresetVST2::SaveToFile() {
-	GetState();
-	std::ofstream file(preset_file_path, std::ofstream::binary | std::ofstream::out | std::ofstream::trunc);
-	if (file.is_open()) {
-		if (SwapNeeded())
-			SwapProgram();
-		file.write(reinterpret_cast<char*>(program), fxprogram_size);
-		if (SwapNeeded())
-			SwapProgram();
-		file.close();
-	}
 }
 
 void PresetVST2::SwapProgram() {

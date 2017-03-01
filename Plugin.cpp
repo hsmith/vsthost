@@ -57,48 +57,44 @@ bool Plugin::IsBypassed() const {
 	return bypass;
 }
 
-bool Plugin::IsGUICreated() const {
-	if (gui)
-		return true;
-	else
-		return false;
-}
-
-bool Plugin::IsEditorVisible() const {
-	if (gui)
-		return gui->IsActive();
-	else
-		return false;
+bool Plugin::IsEditorShown() const {
+	return is_editor_shown;
 }
 
 void Plugin::ShowEditor() {
-	if (gui)
-		gui->Show(); 
+	is_editor_shown = true;
+	if (editor)
+		editor->Show(); 
 }
 
 void Plugin::HideEditor() {
-	if (gui)
-		gui->Hide();
+	is_editor_shown = false;
+	if (editor)
+		editor->Hide();
 }
 
-void Plugin::SaveState() {
+bool Plugin::SaveState() {
 	if (state)
-		state->GetState();
+		return state->Save();
+	return false;
 }
 
-void Plugin::LoadState() {
+bool Plugin::LoadState() {
 	if (state)
-		state->SetState();
+		return state->Load();
+	return false;
 }
 
-void Plugin::SaveStateToFile() {
+bool Plugin::SaveState(const std::string& path) {
 	if (state)
-		state->SaveToFile();
+		return state->Save(path);
+	return false;
 }
 
-void Plugin::LoadStateFromFile() {
+bool Plugin::LoadState(const std::string& path) {
 	if (state)
-		state->LoadFromFile();
+		return state->Load(path);
+	return false;
 }
 
 Steinberg::uint32 Plugin::GetChannelCount() {

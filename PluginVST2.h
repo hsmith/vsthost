@@ -24,12 +24,15 @@ public:
 	IsValidCodes IsValid() const;
 	void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr);
 	std::basic_string<TCHAR> GetPluginName() const;
+	std::string GetPluginNameA() const;
 	void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size);
 	void SetBlockSize(Steinberg::Vst::TSamples bs);
 	void SetSampleRate(Steinberg::Vst::SampleRate sr);
 	// presets
 	Steinberg::int32 GetProgramCount() const;
 	void SetProgram(Steinberg::int32 id);
+	std::basic_string<TCHAR> GetProgramName(Steinberg::int32 id);
+	std::string GetProgramNameA(Steinberg::int32 id);
 	// parameters
 	Steinberg::int32 GetParameterCount() const;
 	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const;
@@ -39,7 +42,11 @@ public:
 	bool BypassProcess() const;
 	// editor
 	bool HasEditor() const;
-	void CreateEditor(HWND hWnd);
+	void CreateEditor(HWND hwnd);
+	Steinberg::uint32 GetEditorHeight();
+	Steinberg::uint32 GetEditorWidth();
+	void ShowEditor();
+	void HideEditor();
 	// vst2 callback procedure wrapper
 	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 private:
@@ -48,6 +55,7 @@ private:
 	void StartProcessing();
 	void StopProcessing();
 	// vst2 specific
+	HWND hwnd; // editor windows handle
 	VstIntPtr VSTCALLBACK Dispatcher(VstInt32 opcode, VstInt32 index = 0, VstIntPtr value = 0, void* ptr = nullptr, float opt = 0.);
 	VstIntPtr VSTCALLBACK HostCallback(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 	bool CanDo(const char *canDo) const;

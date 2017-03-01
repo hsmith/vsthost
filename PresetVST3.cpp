@@ -27,6 +27,49 @@ PresetVST3::PresetVST3(PluginVST3& p) : plugin(p) {
 
 PresetVST3::~PresetVST3() {}
 
+bool PresetVST3::Load() {
+	return Load(preset_file_path);
+}
+
+bool PresetVST3::Load(const std::string& path) {
+	bool ret = false;
+	std::ifstream file(path, std::ifstream::binary | std::ifstream::in);
+	if (file.is_open()) {
+		std::vector<char> v;
+		while (file.good()) {
+			char c;
+			if (file.get(c))
+				v.push_back(c);
+		}
+		Steinberg::MemoryStream in(&v[0], v.size());
+		if (Steinberg::Vst::PresetFile::loadPreset(&in, fuid, plugin.processor_component, plugin.edit_controller)) {
+			GetState(); // preset was loaded successfully, so i update the state of this object
+			ret = true;
+		}
+		file.close();
+	}
+	return ret;
+}
+
+bool PresetVST3::Save() {
+	return Save(preset_file_path);
+}
+
+bool PresetVST3::Save(const std::string& path) {
+	bool ret = false;
+	GetState();
+	Steinberg::MemoryStream out;
+	if (Steinberg::Vst::PresetFile::savePreset(&out, fuid, plugin.processor_component, plugin.edit_controller)) {
+		std::ofstream file(path, std::ofstream::binary | std::ofstream::out | std::ofstream::trunc);
+		if (file.is_open()) {
+			file.write(out.getData(), out.getSize());
+			ret = true;
+			file.close();
+		}
+	}
+	return ret;
+}
+
 void PresetVST3::SetState() {
 	if (processor_stream.getSize() > 0) {
 		plugin.processor_component->setState(&processor_stream);
@@ -39,22 +82,6 @@ void PresetVST3::SetState() {
 	processor_stream.seek(0, Steinberg::IBStream::kIBSeekSet, 0);
 }
 
-void PresetVST3::LoadFromFile() {
-	std::ifstream file(preset_file_path, std::ifstream::binary | std::ifstream::in);
-	if (file.is_open()) {
-		std::vector<char> v;
-		while (file.good()) {
-			char c;
-			if (file.get(c))
-				v.push_back(c);
-		}
-		Steinberg::MemoryStream in(&v[0], v.size());
-		if (Steinberg::Vst::PresetFile::loadPreset(&in, fuid, plugin.processor_component, plugin.edit_controller))
-			GetState(); // preset was loaded successfully, so i update the state of this object
-		file.close();
-	}
-}
-
 void PresetVST3::GetState() {
 	if (plugin.processor_component->getState(&processor_stream) != Steinberg::kResultTrue)
 		processor_stream.setSize(0);
@@ -62,17 +89,5 @@ void PresetVST3::GetState() {
 		edit_stream.setSize(0);
 	edit_stream.seek(0, Steinberg::IBStream::kIBSeekSet, 0);
 	processor_stream.seek(0, Steinberg::IBStream::kIBSeekSet, 0);
-}
-
-void PresetVST3::SaveToFile() {
-	GetState();
-	Steinberg::MemoryStream out;
-	if (Steinberg::Vst::PresetFile::savePreset(&out, fuid, plugin.processor_component, plugin.edit_controller)) {
-		std::ofstream file(preset_file_path, std::ofstream::binary | std::ofstream::out | std::ofstream::trunc);
-		if (file.is_open()) {
-			file.write(out.getData(), out.getSize());
-			file.close();
-		}
-	}
 }
 } // namespace
