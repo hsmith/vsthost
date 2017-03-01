@@ -23,7 +23,7 @@ class HostWindow : public Window {
 	static const int kButtonWidth, kButtonHeight;
 	void OnCreate(HWND hWnd);
 	void SetFont();
-	size_t GetPluginSelection();
+	std::uint32_t GetPluginSelection();
 public:
 	HostWindow(HostController hc);
 	~HostWindow();
@@ -31,7 +31,7 @@ public:
 	void CreateEditors();
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void PopulatePluginList();
-	void SelectPlugin(size_t i);
+	void SelectPlugin(std::uint32_t i);
 	void OpenDialog();
 	bool RegisterWC(const TCHAR* class_name);
 private:

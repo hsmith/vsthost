@@ -37,12 +37,12 @@ public:
 	std::string GetPluginDirectory() const;
 	std::string GetPluginPath() const;
 	// presets
-	virtual Steinberg::int32 GetProgramCount() const = 0;
-	virtual void SetProgram(Steinberg::int32 id) = 0;
-	virtual std::basic_string<TCHAR> GetProgramName(Steinberg::int32 id) = 0;
-	virtual std::string GetProgramNameA(Steinberg::int32 id) = 0;
+	virtual Steinberg::uint32 GetProgramCount() const = 0;
+	virtual void SetProgram(Steinberg::uint32 id) = 0;
+	virtual std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id) = 0;
+	virtual std::string GetProgramNameA(Steinberg::uint32 id) = 0;
 	// parameters
-	virtual Steinberg::int32 GetParameterCount() const = 0;
+	virtual Steinberg::uint32 GetParameterCount() const = 0;
 	virtual Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const = 0;
 	virtual void SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue value) = 0;
 	// active and bypass flags

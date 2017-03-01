@@ -200,7 +200,7 @@ void HostWindow::OpenDialog() {
 	}
 }
 
-void HostWindow::SelectPlugin(size_t i) {
+void HostWindow::SelectPlugin(std::uint32_t i) {
 	if (plugin_list) {
 		SendMessage(plugin_list, LB_SETCURSEL, i, 0);
 		SetFocus(plugin_list);
@@ -226,9 +226,9 @@ void HostWindow::SelectPlugin(size_t i) {
 	}
 }
 
-size_t HostWindow::GetPluginSelection() {
+std::uint32_t HostWindow::GetPluginSelection() {
 	if (plugin_list)
-		return SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL);
+		return static_cast<std::uint32_t>(SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL));
 	else 
 		return -1;
 }

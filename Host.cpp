@@ -290,7 +290,7 @@ bool HostController::SavePluginList() const {
 }
 
 std::uint32_t HostController::GetPluginCount() const {
-	return host->plugins.Size();
+	return static_cast<std::uint32_t>(host->plugins.Size());
 }
 
 bool HostController::AddPlugin(const std::string& path) {

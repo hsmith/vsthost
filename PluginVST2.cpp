@@ -156,24 +156,24 @@ void PluginVST2::SetSampleRate(Steinberg::Vst::SampleRate sr) {
 		SetActive(true);
 }
 
-Steinberg::int32 PluginVST2::GetProgramCount() const {
-	return plugin->numPrograms;
+Steinberg::uint32 PluginVST2::GetProgramCount() const {
+	return static_cast<Steinberg::uint32>(plugin->numPrograms);
 }
 
-void PluginVST2::SetProgram(Steinberg::int32 id) {
+void PluginVST2::SetProgram(Steinberg::uint32 id) {
 	Dispatcher(AEffectXOpcodes::effBeginSetProgram);
 	Dispatcher(AEffectOpcodes::effSetProgram, 0, id);
 	Dispatcher(AEffectXOpcodes::effEndSetProgram);
 }
 
-std::basic_string<TCHAR> PluginVST2::GetProgramName(Steinberg::int32 id) {
+std::basic_string<TCHAR> PluginVST2::GetProgramName(Steinberg::uint32 id) {
 	auto s = GetProgramNameA(id); // VST2 program names are in ASCII only
 	return std::basic_string<TCHAR>(s.begin(), s.end());
 }
 
-std::string PluginVST2::GetProgramNameA(Steinberg::int32 id) {
+std::string PluginVST2::GetProgramNameA(Steinberg::uint32 id) {
 	char tmp[kVstMaxProgNameLen + 1] = { 0 };
-	auto current_program = Dispatcher(AEffectOpcodes::effGetProgram);
+	auto current_program = static_cast<Steinberg::uint32>(Dispatcher(AEffectOpcodes::effGetProgram));
 	bool program_changed = false;
 	if (!Dispatcher(AEffectXOpcodes::effGetProgramNameIndexed, id, 0, tmp)) {
 		SetProgram(id);
@@ -185,7 +185,7 @@ std::string PluginVST2::GetProgramNameA(Steinberg::int32 id) {
 	return std::string(tmp);
 }
 
-Steinberg::int32 PluginVST2::GetParameterCount() const {
+Steinberg::uint32 PluginVST2::GetParameterCount() const {
 	return plugin->numParams;
 }
 

@@ -29,12 +29,12 @@ public:
 	void SetBlockSize(Steinberg::Vst::TSamples bs);
 	void SetSampleRate(Steinberg::Vst::SampleRate sr);
 	// presets
-	Steinberg::int32 GetProgramCount() const;
-	void SetProgram(Steinberg::int32 id);
-	std::basic_string<TCHAR> GetProgramName(Steinberg::int32 id);
-	std::string GetProgramNameA(Steinberg::int32 id);
+	Steinberg::uint32 GetProgramCount() const;
+	void SetProgram(Steinberg::uint32 id);
+	std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id);
+	std::string GetProgramNameA(Steinberg::uint32 id);
 	// parameters
-	Steinberg::int32 GetParameterCount() const;
+	Steinberg::uint32 GetParameterCount() const;
 	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const;
 	void SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue value);
 	// active and bypass flags

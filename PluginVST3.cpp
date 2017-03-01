@@ -334,15 +334,15 @@ void PluginVST3::SetSampleRate(Steinberg::Vst::SampleRate sr) {
 		SetActive(true);
 }
 
-Steinberg::int32 PluginVST3::GetProgramCount() const {
+Steinberg::uint32 PluginVST3::GetProgramCount() const {
 	return program_count;
 }
 
-void PluginVST3::SetProgram(Steinberg::int32 id) {
+void PluginVST3::SetProgram(Steinberg::uint32 id) {
 	if (id < program_count && program_change_param_id != -1) {
 		Steinberg::Vst::ParameterInfo param_info{};
 		if (edit_controller->getParameterInfo(program_change_param_idx, param_info) == Steinberg::kResultTrue) {
-			if (param_info.stepCount > 0 && id <= param_info.stepCount) {
+			if (param_info.stepCount > 0 && id <= static_cast<Steinberg::uint32>(param_info.stepCount)) {
 				auto value = static_cast<Steinberg::Vst::ParamValue>(id) / static_cast<Steinberg::Vst::ParamValue>(param_info.stepCount);
 				SetParameter(program_change_param_id, value);
 			}
@@ -350,7 +350,7 @@ void PluginVST3::SetProgram(Steinberg::int32 id) {
 	}
 }
 
-std::basic_string<TCHAR> PluginVST3::GetProgramName(Steinberg::int32 id) {
+std::basic_string<TCHAR> PluginVST3::GetProgramName(Steinberg::uint32 id) {
 	Steinberg::Vst::ProgramListInfo list_info{};
 	if (unit_info->getProgramListInfo(0, list_info) == Steinberg::kResultTrue) {
 		Steinberg::Vst::String128 tmp = { 0 };
@@ -366,7 +366,7 @@ std::basic_string<TCHAR> PluginVST3::GetProgramName(Steinberg::int32 id) {
 	return std::basic_string<TCHAR>();
 }
 
-std::string PluginVST3::GetProgramNameA(Steinberg::int32 id) {
+std::string PluginVST3::GetProgramNameA(Steinberg::uint32 id) {
 	Steinberg::Vst::ProgramListInfo list_info{};
 	if (unit_info->getProgramListInfo(0, list_info) == Steinberg::kResultTrue) {
 		Steinberg::Vst::String128 tmp = { 0 };
@@ -378,7 +378,7 @@ std::string PluginVST3::GetProgramNameA(Steinberg::int32 id) {
 	return "";
 }
 
-Steinberg::int32 PluginVST3::GetParameterCount() const {
+Steinberg::uint32 PluginVST3::GetParameterCount() const {
 	return edit_controller->getParameterCount();
 }
 

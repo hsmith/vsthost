@@ -89,7 +89,7 @@ HMENU PluginVST3Window::CreateMenu() const {
 	::AppendMenu(hmenu, MF_POPUP, (UINT_PTR)hstate, TEXT("State"));
 	// preset submenu
 	HMENU hpresets = ::CreateMenu();
-	for (Steinberg::int32 i = 0; i < plugin.GetProgramCount(); ++i)
+	for (Steinberg::uint32 i = 0; i < plugin.GetProgramCount(); ++i)
 		::AppendMenu(hpresets, MF_STRING, MenuItem::Preset + i, plugin.GetProgramName(i).c_str());
 	::AppendMenu(hmenu, plugin.GetProgramCount() > 0 ? MF_POPUP : MF_POPUP | MF_GRAYED, (UINT_PTR)hpresets, TEXT("Plugin"));
 	return hmenu;

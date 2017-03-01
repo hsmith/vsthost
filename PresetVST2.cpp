@@ -140,7 +140,7 @@ void PresetVST2::SetState() {
 	if (ProgramChunks())
 		plugin.Dispatcher(AEffectOpcodes::effSetChunk, 1, program->content.data.size, &program->content.data.chunk);
 	else
-		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); i++)
+		for (Steinberg::uint32 i = 0; i < plugin.GetParameterCount(); i++)
 			plugin.SetParameter(i, program->content.params[i]);
 }
 
@@ -154,7 +154,7 @@ void PresetVST2::GetState() {
 		//	free(chunk);
 	}
 	else
-		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); i++)
+		for (Steinberg::uint32 i = 0; i < plugin.GetParameterCount(); i++)
 			program->content.params[i] = plugin.GetParameter(i);
 }
 
@@ -170,7 +170,7 @@ void PresetVST2::SwapProgram() {
 		SWAP_32(program->content.data.size);
 	}
 	else {
-		for (Steinberg::int32 i = 0; i < plugin.GetParameterCount(); ++i) {
+		for (Steinberg::uint32 i = 0; i < plugin.GetParameterCount(); ++i) {
 			SWAP_32(program->content.params[i]);
 		}
 	}
