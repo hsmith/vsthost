@@ -7,6 +7,14 @@
 #include "pluginterfaces/gui/iplugview.h"
 #include "base/source/fstring.h"
 #include "pluginterfaces/base/ipluginbase.h"
+DEF_CLASS_IID(Steinberg::IPluginFactory2)
+DEF_CLASS_IID(Steinberg::Vst::IComponent)
+DEF_CLASS_IID(Steinberg::Vst::IComponentHandler)
+DEF_CLASS_IID(Steinberg::Vst::IAudioProcessor)
+DEF_CLASS_IID(Steinberg::Vst::IEditController)
+DEF_CLASS_IID(Steinberg::Vst::IConnectionPoint)
+DEF_CLASS_IID(Steinberg::Vst::IUnitInfo)
+DEF_CLASS_IID(Steinberg::IBStream)
 
 #include "ParameterChanges.h"
 #include "PluginVST3Window.h"

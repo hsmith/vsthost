@@ -178,7 +178,6 @@
     <ClInclude Include="HostWindow.h" />
     <ClInclude Include="ParameterChanges.h" />
     <ClInclude Include="PluginManager.h" />
-    <ClInclude Include="VSTHostHeader.h" />
     <ClInclude Include="Plugin.h" />
     <ClInclude Include="PluginWindow.h" />
     <ClInclude Include="PluginLoader.h" />

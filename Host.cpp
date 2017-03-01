@@ -10,6 +10,7 @@
 #endif
 #include "base/source/fstring.h"
 #include "pluginterfaces/vst/ivsthostapplication.h"
+DEF_CLASS_IID(Steinberg::Vst::IHostApplication)
 
 #include "HostWindow.h"
 #include "Plugin.h"

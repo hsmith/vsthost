@@ -1,5 +1,8 @@
 #include "ParameterChanges.h"
 
+DEF_CLASS_IID(Steinberg::Vst::IParamValueQueue)
+DEF_CLASS_IID(Steinberg::Vst::IParameterChanges)
+
 namespace VSTHost {
 ParameterValueQueue::ParameterValueQueue(Steinberg::Vst::ParamID pid) : id(pid), index(-1) {
 
