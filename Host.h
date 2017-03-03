@@ -7,6 +7,7 @@
 #include <windows.h>
 
 namespace VSTHost {
+class IHostController;
 class HostController;
 class Host {
 friend HostController;
@@ -24,46 +25,43 @@ public:
 	bool SavePluginList(const std::string& path) const;
 	bool LoadPluginList();
 	bool SavePluginList() const;
-	HostController GetController();
+	IHostController* GetController();
 private:
 	class HostImpl;
 	std::shared_ptr<HostImpl> impl;
 };
 
-class HostController {
+class IHostController {
 public:
-	bool LoadPluginList(const std::string& path);
-	bool SavePluginList(const std::string& path) const;
-	bool LoadPluginList();
-	bool SavePluginList() const;
-	std::uint32_t GetPluginCount() const;
-	bool AddPlugin(const std::string& path);
-	void DeletePlugin(std::uint32_t idx);
-	void MoveUp(std::uint32_t idx);
-	void MoveDown(std::uint32_t idx);
-	std::string GetPluginName(std::uint32_t idx) const;
-	bool HasEditor(std::uint32_t idx) const;
-	void CreateEditor(std::uint32_t idx, HWND hwnd);
-	std::uint32_t GetPluginEditorHeight(std::uint32_t idx);
-	std::uint32_t GetPluginEditorWidth(std::uint32_t idx);
-	void ShowEditor(std::uint32_t idx);
-	void HideEditor(std::uint32_t idx);
-	bool IsEditorShown(std::uint32_t idx) const;
-	bool IsBypassed(std::uint32_t idx) const;
-	void SetBypass(std::uint32_t idx, bool bypass);
-	bool IsActive(std::uint32_t idx) const;
-	void SetActive(std::uint32_t idx, bool active);
-	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const;
-	std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx);
-	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx);
-	bool SavePreset(std::uint32_t idx);
-	bool LoadPreset(std::uint32_t idx);
-	bool SavePreset(std::uint32_t idx, const std::string& path);
-	bool LoadPreset(std::uint32_t idx, const std::string& path);
-private:
-friend HostController Host::GetController();
-	HostController(std::shared_ptr<Host::HostImpl> impl);
-	std::shared_ptr<Host::HostImpl> host;
+	virtual ~IHostController() {}
+	virtual bool LoadPluginList(const std::string& path) = 0;
+	virtual bool SavePluginList(const std::string& path) const = 0;
+	virtual bool LoadPluginList() = 0;
+	virtual bool SavePluginList() const = 0;
+	virtual std::uint32_t GetPluginCount() const = 0;
+	virtual bool AddPlugin(const std::string& path) = 0;
+	virtual void DeletePlugin(std::uint32_t idx) = 0;
+	virtual void MoveUp(std::uint32_t idx) = 0;
+	virtual void MoveDown(std::uint32_t idx) = 0;
+	virtual std::string GetPluginName(std::uint32_t idx) const = 0;
+	virtual bool HasEditor(std::uint32_t idx) const = 0;
+	virtual void CreateEditor(std::uint32_t idx, HWND hwnd) = 0;
+	virtual std::uint32_t GetPluginEditorHeight(std::uint32_t idx) = 0;
+	virtual std::uint32_t GetPluginEditorWidth(std::uint32_t idx) = 0;
+	virtual void ShowEditor(std::uint32_t idx) = 0;
+	virtual void HideEditor(std::uint32_t idx) = 0;
+	virtual bool IsEditorShown(std::uint32_t idx) const = 0;
+	virtual bool IsBypassed(std::uint32_t idx) const = 0;
+	virtual void SetBypass(std::uint32_t idx, bool bypass) = 0;
+	virtual bool IsActive(std::uint32_t idx) const = 0;
+	virtual void SetActive(std::uint32_t idx, bool active) = 0;
+	virtual std::uint32_t GetPluginPresetCount(std::uint32_t idx) const = 0;
+	virtual std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) = 0;
+	virtual void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) = 0;
+	virtual bool SavePreset(std::uint32_t idx) = 0;
+	virtual bool LoadPreset(std::uint32_t idx) = 0;
+	virtual bool SavePreset(std::uint32_t idx, const std::string& path) = 0;
+	virtual bool LoadPreset(std::uint32_t idx, const std::string& path) = 0;
 };
 } // namespace
 
