@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using VSTHost;
 
 namespace vsthost_tester_csharp
 {
     static class Program
     {
+        
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -18,7 +18,6 @@ namespace vsthost_tester_csharp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            HostProxy host = new HostProxy(1024, 44100.0);
             Application.Run(new MainForm());
         }
     }

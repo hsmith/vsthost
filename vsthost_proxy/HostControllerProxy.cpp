@@ -5,8 +5,9 @@
 
 namespace VSTHost {
 
-	HostControllerProxy::HostControllerProxy(IHostController* hc_) {
-		hc = hc_;
+	HostControllerProxy::HostControllerProxy(IHostController* hc_) :
+		hc (hc_) {
+
 	}
 
 	HostControllerProxy::~HostControllerProxy() {

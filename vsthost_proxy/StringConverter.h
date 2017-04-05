@@ -1,7 +1,5 @@
 #pragma once
 
-//namespace System::String;
-
 #include <string>
 
 namespace VSTHost {
