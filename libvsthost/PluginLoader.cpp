@@ -27,7 +27,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 			Steinberg::IPluginFactory* factory = nullptr;
 			GetFactoryProc getFactory = reinterpret_cast<GetFactoryProc>(proc);
 			factory = getFactory(); // retrieving factory pointer from factory proc
-			ret = std::make_unique<PluginVST3>(PluginVST3(module, factory, context));
+			ret = std::unique_ptr<PluginVST3>(new PluginVST3(module, factory, context));
 		}
 		else {
 			proc = ::GetProcAddress(module, "VSTPluginMain");
@@ -37,7 +37,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 				AEffect* effect = nullptr;
 				VSTInitProc init_proc = reinterpret_cast<VSTInitProc>(proc);
 				effect = init_proc(PluginVST2::HostCallbackWrapper);
-				ret = std::make_unique<PluginVST3>(PluginVST2(module, effect));
+				ret = std::unique_ptr<PluginVST2>(new PluginVST2(module, effect));
 			}
 			else
 				std::cerr << "Error loading plugin: Could not locate plugin entry procedure in " << path << "." << std::endl;

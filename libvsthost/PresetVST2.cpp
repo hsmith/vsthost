@@ -24,12 +24,12 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 		char* chunk = nullptr;
 		auto chunk_size = plugin.Dispatcher(AEffectOpcodes::effGetChunk, 1, 0, &chunk); // plugin allocates the data
 		fxprogram_size = sizeof(fxProgram) - kProgramUnionSize + sizeof(VstInt32) + chunk_size;
-		program_data = std::vector<char>(fxprogram_size);
+		program_data.resize(fxprogram_size);
 		program = reinterpret_cast<fxProgram*>(program_data.data());
 		program->content.data.size = chunk_size;
 	}
 	else {
-		program_data = std::vector<char>(fxprogram_size);
+		program_data.resize(fxprogram_size);
 		program = reinterpret_cast<fxProgram*>(program_data.data());
 	}
 	program->version = 1;
