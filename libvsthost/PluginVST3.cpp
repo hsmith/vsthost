@@ -99,14 +99,6 @@ PluginVST3::~PluginVST3() {
 		connection_point_component->release();
 		connection_point_controller->release();
 	}
-	if (pd.inputs)
-		delete pd.inputs;
-	if (pd.outputs)
-		delete pd.outputs;
-	if (pd.inputParameterChanges)
-		delete pd.inputParameterChanges;
-	if (pd.outputParameterChanges)
-		delete pd.outputParameterChanges;
 	if (audio)
 		audio->release();
 	if (unit_info)
@@ -239,16 +231,20 @@ void PluginVST3::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	pd.processMode = Steinberg::Vst::kRealtime;
 	pd.numInputs = 1;
 	pd.numOutputs = 1;
-	pd.inputs = new Steinberg::Vst::AudioBusBuffers;
-	pd.inputs->numChannels = GetChannelCount();
-	pd.outputs = new Steinberg::Vst::AudioBusBuffers;
-	pd.outputs->numChannels = GetChannelCount();
+	bus_in = std::make_unique<Steinberg::Vst::AudioBusBuffers>(Steinberg::Vst::AudioBusBuffers());
+	bus_out = std::make_unique<Steinberg::Vst::AudioBusBuffers>(Steinberg::Vst::AudioBusBuffers());
+	bus_in->numChannels = GetChannelCount();
+	bus_out->numChannels = GetChannelCount();
+	pd.inputs = bus_in.get();
+	pd.outputs = bus_out.get();
 	pd.inputEvents = nullptr;
 	pd.outputEvents = nullptr;
 	pd.processContext = nullptr;
 	// create parameter changes objects
-	pd.inputParameterChanges = new ParameterChanges(edit_controller);
-	pd.outputParameterChanges = new ParameterChanges(edit_controller);
+	pc_in = std::make_unique<ParameterChanges>(ParameterChanges(edit_controller));
+	pc_out = std::make_unique<ParameterChanges>(ParameterChanges(edit_controller));
+	pd.inputParameterChanges = pc_in.get();
+	pd.outputParameterChanges = pc_out.get();
 
 	SetActive(true);
 

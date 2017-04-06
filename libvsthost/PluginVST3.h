@@ -24,6 +24,7 @@ struct Steinberg::PClassInfo2;
 class Steinberg::Vst::IComponent;
 class Steinberg::Vst::IConnectionPoint;
 class ParameterValueQueue;
+class ParameterChanges;
 class PluginVST3 : public Plugin, public Steinberg::Vst::IComponentHandler {
 	friend class PluginVST3Window;
 	friend class PresetVST3;
@@ -102,6 +103,8 @@ private:
 	Steinberg::Vst::IConnectionPoint* connection_point_controller{ nullptr };
 	// audio related
 	Steinberg::Vst::IAudioProcessor* audio;
+	std::unique_ptr<Steinberg::Vst::AudioBusBuffers> bus_in, bus_out;
+	std::unique_ptr<ParameterChanges> pc_in, pc_out;
 	Steinberg::Vst::ProcessData pd;
 };
 } // namespace
