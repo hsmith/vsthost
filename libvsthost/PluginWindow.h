@@ -23,8 +23,8 @@ protected:
 	virtual HMENU CreateMenu() const = 0;
 	HMENU menu;
 	static const TCHAR* kClassName;
-	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	bool RegisterWC(const TCHAR* class_name);
+	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+	bool RegisterWC(const TCHAR* class_name) override;
 	static bool registered;
 	static int static_offset;
 	int offset;

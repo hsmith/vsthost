@@ -21,39 +21,39 @@ class PluginVST2 : public Plugin {
 public:
 	~PluginVST2();
 	// basic plugin interface
-	IsValidCodes IsValid() const;
-	void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr);
-	std::basic_string<TCHAR> GetPluginName() const;
-	std::string GetPluginNameA() const;
-	void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size);
-	void SetBlockSize(Steinberg::Vst::TSamples bs);
-	void SetSampleRate(Steinberg::Vst::SampleRate sr);
+	IsValidCodes IsValid() const override;
+	void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr) override;
+	std::basic_string<TCHAR> GetPluginName() const override;
+	std::string GetPluginNameA() const override;
+	void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) override;
+	void SetBlockSize(Steinberg::Vst::TSamples bs) override;
+	void SetSampleRate(Steinberg::Vst::SampleRate sr) override;
 	// presets
-	Steinberg::uint32 GetProgramCount() const;
-	void SetProgram(Steinberg::uint32 id);
-	std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id);
-	std::string GetProgramNameA(Steinberg::uint32 id);
+	Steinberg::uint32 GetProgramCount() const override;
+	void SetProgram(Steinberg::uint32 id) override;
+	std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id) override;
+	std::string GetProgramNameA(Steinberg::uint32 id) override;
 	// parameters
-	Steinberg::uint32 GetParameterCount() const;
-	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const;
-	void SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue value);
+	Steinberg::uint32 GetParameterCount() const override;
+	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const override;
+	void SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue value) override;
 	// active and bypass flags
-	void SetBypass(bool bypass_);
-	bool BypassProcess() const;
+	void SetBypass(bool bypass_) override;
+	bool BypassProcess() const override;
 	// editor
-	bool HasEditor() const;
-	void CreateEditor(HWND hwnd);
-	Steinberg::uint32 GetEditorHeight();
-	Steinberg::uint32 GetEditorWidth();
-	void ShowEditor();
-	void HideEditor();
+	bool HasEditor() const override;
+	void CreateEditor(HWND hwnd) override;
+	Steinberg::uint32 GetEditorHeight() override;
+	Steinberg::uint32 GetEditorWidth() override;
+	void ShowEditor() override;
+	void HideEditor() override;
 	// vst2 callback procedure wrapper
 	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 private:
-	void Resume();
-	void Suspend();
-	void StartProcessing();
-	void StopProcessing();
+	void Resume() override;
+	void Suspend() override;
+	void StartProcessing() override;
+	void StopProcessing() override;
 	// vst2 specific
 	HWND hwnd; // editor windows handle
 	VstIntPtr VSTCALLBACK Dispatcher(VstInt32 opcode, VstInt32 index = 0, VstIntPtr value = 0, void* ptr = nullptr, float opt = 0.);

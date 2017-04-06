@@ -11,11 +11,11 @@ class PluginVST3Window : public PluginWindow {
 public:
 	PluginVST3Window(PluginVST3& p, Steinberg::IPlugView* pv);
 	~PluginVST3Window();
-	bool Initialize(HWND parent);
-	HMENU CreateMenu() const;
-	void Show();
-	void Hide();
-	void SetRect();
+	bool Initialize(HWND parent) override;
+	HMENU CreateMenu() const override;
+	void Show() override;
+	void Hide() override;
+	void SetRect() override;
 private:
 	Steinberg::IPlugView* plugin_view = { nullptr };
 };

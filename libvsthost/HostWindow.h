@@ -21,19 +21,19 @@ class HostWindow : public Window {
 	static const int kWindowWidth, kWindowHeight;
 	static const int kListWidth, kListHeight;
 	static const int kButtonWidth, kButtonHeight;
-	void OnCreate(HWND hWnd);
+	void OnCreate(HWND hWnd) override;
 	void SetFont();
 	std::uint32_t GetPluginSelection();
 public:
 	HostWindow(IHostController* hc);
 	~HostWindow();
-	bool Initialize(HWND parent);
+	bool Initialize(HWND parent) override;
+	LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
+	bool RegisterWC(const TCHAR* class_name) override;
 	void CreateEditors();
-	LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void PopulatePluginList();
 	void SelectPlugin(std::uint32_t i);
 	void OpenDialog();
-	bool RegisterWC(const TCHAR* class_name);
 private:
 	static bool registered;
 	HFONT font;

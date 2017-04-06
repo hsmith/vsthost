@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace vsthost_tester_csharp
 {
     public partial class MainForm : Form

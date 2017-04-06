@@ -12,13 +12,13 @@ class PresetVST2 : public Preset {
 public:
 	PresetVST2(PluginVST2& p);
 	~PresetVST2();
-	bool Load();
-	bool Load(const std::string& path);
-	bool Save();
-	bool Save(const std::string& path);
+	bool Load() override;
+	bool Load(const std::string& path) override;
+	bool Save() override;
+	bool Save(const std::string& path) override;
 private:
-	void SetState();
-	void GetState();
+	void SetState() override;
+	void GetState() override;
 	void SwapProgram();
 	bool ProgramChunks() const;
 	static bool SwapNeeded();

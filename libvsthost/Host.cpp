@@ -122,29 +122,29 @@ public:
 		return plugins.SavePluginList();
 	}
 
-	Steinberg::tresult PLUGIN_API getName(Steinberg::Vst::String128 name) {
+	Steinberg::tresult PLUGIN_API getName(Steinberg::Vst::String128 name) override {
 		Steinberg::String str("VSTHost");
 		str.copyTo16(name, 0, 127);
 		return Steinberg::kResultTrue;
 	}
 
-	Steinberg::tresult PLUGIN_API createInstance(Steinberg::TUID cid, Steinberg::TUID iid, void** obj) {
+	Steinberg::tresult PLUGIN_API createInstance(Steinberg::TUID cid, Steinberg::TUID iid, void** obj) override {
 		*obj = nullptr;
 		return Steinberg::kResultFalse;
 	}
 
-	Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID _iid, void** obj) {
+	Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID _iid, void** obj) override {
 		QUERY_INTERFACE(_iid, obj, Steinberg::FUnknown::iid, Steinberg::Vst::IHostApplication)
 		QUERY_INTERFACE(_iid, obj, Steinberg::Vst::IHostApplication::iid, Steinberg::Vst::IHostApplication)
 		*obj = 0;
 		return Steinberg::kNoInterface;
 	}
 
-	Steinberg::uint32 PLUGIN_API addRef() {
+	Steinberg::uint32 PLUGIN_API addRef() override {
 		return 1;
 	}
 
-	Steinberg::uint32 PLUGIN_API release() {
+	Steinberg::uint32 PLUGIN_API release() override {
 		return 1;
 	}
 
@@ -268,34 +268,34 @@ bool Host::SavePluginList() const {
 
 class HostController : public IHostController {
 public:
-	bool LoadPluginList(const std::string& path);
-	bool SavePluginList(const std::string& path) const;
-	bool LoadPluginList();
-	bool SavePluginList() const;
-	std::uint32_t GetPluginCount() const;
-	bool AddPlugin(const std::string& path);
-	void DeletePlugin(std::uint32_t idx);
-	void MoveUp(std::uint32_t idx);
-	void MoveDown(std::uint32_t idx);
-	std::string GetPluginName(std::uint32_t idx) const;
-	bool HasEditor(std::uint32_t idx) const;
-	void CreateEditor(std::uint32_t idx, HWND hwnd);
-	std::uint32_t GetPluginEditorHeight(std::uint32_t idx);
-	std::uint32_t GetPluginEditorWidth(std::uint32_t idx);
-	void ShowEditor(std::uint32_t idx);
-	void HideEditor(std::uint32_t idx);
-	bool IsEditorShown(std::uint32_t idx) const;
-	bool IsBypassed(std::uint32_t idx) const;
-	void SetBypass(std::uint32_t idx, bool bypass);
-	bool IsActive(std::uint32_t idx) const;
-	void SetActive(std::uint32_t idx, bool active);
-	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const;
-	std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx);
-	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx);
-	bool SavePreset(std::uint32_t idx);
-	bool LoadPreset(std::uint32_t idx);
-	bool SavePreset(std::uint32_t idx, const std::string& path);
-	bool LoadPreset(std::uint32_t idx, const std::string& path);
+	bool LoadPluginList(const std::string& path) override;
+	bool SavePluginList(const std::string& path) const override;
+	bool LoadPluginList() override;
+	bool SavePluginList() const override;
+	std::uint32_t GetPluginCount() const override;
+	bool AddPlugin(const std::string& path) override;
+	void DeletePlugin(std::uint32_t idx) override;
+	void MoveUp(std::uint32_t idx) override;
+	void MoveDown(std::uint32_t idx) override;
+	std::string GetPluginName(std::uint32_t idx) const override;
+	bool HasEditor(std::uint32_t idx) const override;
+	void CreateEditor(std::uint32_t idx, HWND hwnd) override;
+	std::uint32_t GetPluginEditorHeight(std::uint32_t idx) override;
+	std::uint32_t GetPluginEditorWidth(std::uint32_t idx) override;
+	void ShowEditor(std::uint32_t idx) override;
+	void HideEditor(std::uint32_t idx) override;
+	bool IsEditorShown(std::uint32_t idx) const override;
+	bool IsBypassed(std::uint32_t idx) const override;
+	void SetBypass(std::uint32_t idx, bool bypass) override;
+	bool IsActive(std::uint32_t idx) const override;
+	void SetActive(std::uint32_t idx, bool active) override;
+	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const override;
+	std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
+	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
+	bool SavePreset(std::uint32_t idx) override;
+	bool LoadPreset(std::uint32_t idx) override;
+	bool SavePreset(std::uint32_t idx, const std::string& path) override;
+	bool LoadPreset(std::uint32_t idx, const std::string& path) override;
 private:
 	friend IHostController* Host::GetController();
 	HostController(std::shared_ptr<Host::HostImpl> impl);
