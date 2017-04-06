@@ -75,7 +75,7 @@ void PluginVST2::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	Dispatcher(AEffectOpcodes::effOpen);
 	Dispatcher(AEffectOpcodes::effSetSampleRate, 0, 0, nullptr, static_cast<float>(sample_rate));
 	Dispatcher(AEffectOpcodes::effSetBlockSize, 0, static_cast<VstIntPtr>(block_size));
-	state = std::unique_ptr<Preset>(new PresetVST2(*this));
+	state = std::make_unique<PresetVST2>(PresetVST2(*this));
 	soft_bypass = CanDo("bypass");
 	SetActive(true);
 }
@@ -220,7 +220,7 @@ void PluginVST2::CreateEditor(HWND hwnd) {
 			Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
 		}
 		else { // editor will be created via PluginWindow class
-			editor = std::unique_ptr<PluginWindow>(new PluginVST2Window(*this));
+			editor = std::make_unique<PluginVST2Window>(PluginVST2Window(*this));
 			editor->Initialize();
 			this->hwnd = editor->GetHWND();
 		}

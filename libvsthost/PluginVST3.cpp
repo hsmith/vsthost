@@ -267,7 +267,7 @@ void PluginVST3::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	}
 	
 	// create plugin state module
-	state = std::unique_ptr<Preset>(new PresetVST3(*this));
+	state = std::make_unique<PresetVST3>(PresetVST3(*this));
 
 	// check if plugin has editor and remember it
 	plugin_view = edit_controller->createView(Steinberg::Vst::ViewType::kEditor);
@@ -425,7 +425,7 @@ void PluginVST3::CreateEditor(HWND hwnd) {
 			plugin_view->attached(hwnd, Steinberg::kPlatformTypeHWND);
 		}
 		else { // editor will be created via PluginWindow class
-			editor = std::unique_ptr<PluginWindow>(new PluginVST3Window(*this, plugin_view));
+			editor = std::make_unique<PluginVST3Window>(PluginVST3Window(*this, plugin_view));
 			editor->Initialize();
 		}
 		is_editor_created = true;

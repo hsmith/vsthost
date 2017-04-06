@@ -100,6 +100,8 @@ public:
 	}
 
 	void CreateGUI(IHostController* hc) {
+		// investigate: why would it need copy constructor?
+		//gui = std::make_unique<HostWindow>(HostWindow(hc));
 		gui = std::unique_ptr<HostWindow>(new HostWindow(hc));
 		gui->Initialize(NULL);
 		gui->CreateEditors();
@@ -215,7 +217,7 @@ public:
 };
 
 Host::Host(std::int64_t max_num_samples, double sample_rate) : impl(new Host::HostImpl(max_num_samples, sample_rate)) {
-
+															// why doesn't make_shared work here either?
 }
 
 Host::~Host() {

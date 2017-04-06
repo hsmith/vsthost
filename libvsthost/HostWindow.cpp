@@ -181,7 +181,7 @@ void HostWindow::SetFont() {
 void HostWindow::OpenDialog() {
 	char filename[MAX_PATH]{};
 	if (!ofn) {
-		ofn = std::unique_ptr<OPENFILENAMEA>(new OPENFILENAMEA());
+		ofn = std::make_unique<OPENFILENAMEA>(OPENFILENAMEA());
 		ofn->lStructSize = sizeof(*ofn);
 		ofn->hwndOwner = wnd;
 		ofn->lpstrFilter = "VST Plugins (*.dll, *.vst3)\0*.dll;*.vst3\0VST2 Plugins (*.dll)\0*.dll\0VST3 Plugins (*.vst3)\0*.vst3\0";

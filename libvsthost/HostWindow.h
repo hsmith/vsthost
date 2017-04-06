@@ -26,6 +26,7 @@ class HostWindow : public Window {
 	std::uint32_t GetPluginSelection();
 public:
 	HostWindow(IHostController* hc);
+	//HostWindow(const HostWindow& hw) : Window(hw) {}
 	~HostWindow();
 	bool Initialize(HWND parent) override;
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;

@@ -76,7 +76,7 @@ bool PresetVST2::Load(const std::string& path) {
 			if (file.good() && in.fxID == program->fxID /*&& in.fxVersion == program->fxVersion*/
 				&& in.numParams == program->numParams && in.version == program->version) {
 				if (in.fxMagic == chunkPresetMagic) {
-					std::unique_ptr<char[]> in_chunk(new char[program->content.data.size]);
+					auto in_chunk = std::make_unique<char[]>(program->content.data.size);
 					Steinberg::int32 in_chunk_size;
 					file.read(reinterpret_cast<char*>(&in_chunk_size), sizeof(in_chunk_size));
 					if (SwapNeeded())
@@ -93,7 +93,7 @@ bool PresetVST2::Load(const std::string& path) {
 					}
 				}
 				else if (in.fxMagic == fMagic) {
-					std::unique_ptr<float[]> params(new float[program->numParams]);
+					auto params = std::make_unique<float[]>(program->numParams);
 					Steinberg::int32 i = 0;
 					while (i < program->numParams && file.good()) {
 						file.read(reinterpret_cast<char*>(params.get() + i), sizeof(params[0]));
