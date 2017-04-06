@@ -24,14 +24,13 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 		char* chunk = nullptr;
 		auto chunk_size = plugin.Dispatcher(AEffectOpcodes::effGetChunk, 1, 0, &chunk); // plugin allocates the data
 		fxprogram_size = sizeof(fxProgram) - kProgramUnionSize + sizeof(VstInt32) + chunk_size;
-		program = reinterpret_cast<fxProgram*>(new char[fxprogram_size]{});
+		program_data = std::vector<char>(fxprogram_size);
+		program = reinterpret_cast<fxProgram*>(program_data.data());
 		program->content.data.size = chunk_size;
-		//if (chunk)
-		//	free(chunk);
 	}
 	else {
-		fxprogram_size = sizeof(fxProgram) - kProgramUnionSize + plugin.GetParameterCount() * sizeof(float);
-		program = reinterpret_cast<fxProgram*>(new char[fxprogram_size]{});
+		program_data = std::vector<char>(fxprogram_size);
+		program = reinterpret_cast<fxProgram*>(program_data.data());
 	}
 	program->version = 1;
 	program->fxID = plugin.plugin->uniqueID;
@@ -45,8 +44,7 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 }
 
 PresetVST2::~PresetVST2() {
-	if (program)
-		delete[] reinterpret_cast<char*>(program);
+	program = nullptr;
 }
 
 bool PresetVST2::Load() {
@@ -150,8 +148,6 @@ void PresetVST2::GetState() {
 		auto chunk_size = plugin.Dispatcher(AEffectOpcodes::effGetChunk, 1, 0, &chunk);
 		program->content.data.size = chunk_size;
 		memcpy(program->content.data.chunk, chunk, program->content.data.size);
-		//if (chunk)
-		//	free(chunk);
 	}
 	else
 		for (Steinberg::uint32 i = 0; i < plugin.GetParameterCount(); i++)
@@ -186,5 +182,4 @@ bool PresetVST2::SwapNeeded() {
 	static bool swap_needed = memcpy(str, &magic, sizeof(magic)) != 0;
 	return swap_needed;
 }
-
 } // namespace

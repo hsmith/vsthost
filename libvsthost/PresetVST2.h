@@ -1,6 +1,8 @@
 #ifndef PRESETVST2_H
 #define PRESETVST2_H
 
+#include <vector>
+
 #include "pluginterfaces\vst2.x\aeffectx.h"
 #include "pluginterfaces\vst2.x\vstfxstore.h"
 
@@ -25,6 +27,7 @@ private:
 	static const size_t kProgramUnionSize;	// sizeof(fxProgram::content)
 	static const std::string kExtension;
 	fxProgram* program;
+	std::vector<char> program_data;
 	size_t fxprogram_size; // size of fxprogram in this particular instance, without 2 first values
 	bool program_chunks;
 	PluginVST2& plugin;
