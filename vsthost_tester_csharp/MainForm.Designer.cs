@@ -31,11 +31,12 @@
             this.buttonPlay = new System.Windows.Forms.Button();
             this.buttonProcess = new System.Windows.Forms.Button();
             this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonHost = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonPlay
             // 
-            this.buttonPlay.Location = new System.Drawing.Point(40, 32);
+            this.buttonPlay.Location = new System.Drawing.Point(12, 12);
             this.buttonPlay.Name = "buttonPlay";
             this.buttonPlay.Size = new System.Drawing.Size(116, 39);
             this.buttonPlay.TabIndex = 0;
@@ -45,7 +46,7 @@
             // 
             // buttonProcess
             // 
-            this.buttonProcess.Location = new System.Drawing.Point(40, 122);
+            this.buttonProcess.Location = new System.Drawing.Point(150, 12);
             this.buttonProcess.Name = "buttonProcess";
             this.buttonProcess.Size = new System.Drawing.Size(116, 39);
             this.buttonProcess.TabIndex = 1;
@@ -55,7 +56,7 @@
             // 
             // buttonStop
             // 
-            this.buttonStop.Location = new System.Drawing.Point(40, 77);
+            this.buttonStop.Location = new System.Drawing.Point(12, 66);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(116, 39);
             this.buttonStop.TabIndex = 2;
@@ -63,14 +64,27 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
+            // buttonHost
+            // 
+            this.buttonHost.Location = new System.Drawing.Point(151, 66);
+            this.buttonHost.Name = "buttonHost";
+            this.buttonHost.Size = new System.Drawing.Size(115, 40);
+            this.buttonHost.TabIndex = 3;
+            this.buttonHost.Text = "Show Host Controller";
+            this.buttonHost.UseVisualStyleBackColor = true;
+            this.buttonHost.Click += new System.EventHandler(this.buttonHost_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(298, 179);
+            this.ClientSize = new System.Drawing.Size(278, 118);
+            this.Controls.Add(this.buttonHost);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonProcess);
             this.Controls.Add(this.buttonPlay);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "VSTHost Tester";
             this.Load += new System.EventHandler(this.MainForm_Load);
@@ -83,6 +97,7 @@
         private System.Windows.Forms.Button buttonPlay;
         private System.Windows.Forms.Button buttonProcess;
         private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Button buttonHost;
     }
 }
 

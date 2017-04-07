@@ -42,7 +42,7 @@ namespace vsthost_tester_csharp
             player.Load();
 
             // host
-            host.CreateGUIThread();
+            //host.CreateGUIThread();
             //host.LoadPluginList();
         }
 
@@ -79,6 +79,11 @@ namespace vsthost_tester_csharp
             wav_processed.Position = 0;
             player.Stream = wav_processed;
             player.Load();
+        }
+
+        public HostControllerProxy GetController()
+        {
+            return host.GetController();
         }
     }
 }
