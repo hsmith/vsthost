@@ -102,7 +102,7 @@ HMENU PluginVST2Window::CreateMenu() const {
 		::AppendMenuA(hpresets, MF_STRING, MenuItem::Preset + i, tmp);
 	}
 	if (programChanged) p.Dispatcher(AEffectOpcodes::effSetProgram, 0, currentProgram);
-	::AppendMenu(hmenu, plugin.GetProgramCount() > 0 ? MF_POPUP : MF_POPUP | MF_GRAYED, (UINT_PTR)hpresets, TEXT("Plugin"));
+	::AppendMenu(hmenu, plugin.GetProgramCount() > 0 ? MF_POPUP : MF_POPUP | MF_GRAYED, (UINT_PTR)hpresets, TEXT("Preset"));
 	return hmenu;
 }
 } // namespace

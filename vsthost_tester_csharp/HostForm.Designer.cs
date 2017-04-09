@@ -87,7 +87,6 @@
             // 
             // button_show
             // 
-            this.button_show.Enabled = false;
             this.button_show.Location = new System.Drawing.Point(197, 128);
             this.button_show.Name = "button_show";
             this.button_show.Size = new System.Drawing.Size(98, 23);
