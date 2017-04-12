@@ -1,12 +1,9 @@
 #pragma once
-#pragma managed(push, off)
-#pragma managed(pop)
 
+#include <vcclr.h>  
 #include "libvsthost/HostObserver.h"
 
 using System::UInt32;
-using namespace System;
-#include <vcclr.h>  
 
 namespace VSTHost {
 	class HostObserver;
@@ -31,6 +28,7 @@ namespace VSTHost {
 	public:
 		HostObserverProxyWrapper();
 		~HostObserverProxyWrapper();
+		!HostObserverProxyWrapper();
 		virtual void OnPluginAdded(UInt32 idx) = 0;
 		virtual void OnPluginDeleted(UInt32 idx) = 0;
 		virtual void OnListLoaded() = 0;

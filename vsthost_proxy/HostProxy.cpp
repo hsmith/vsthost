@@ -23,6 +23,10 @@ namespace VSTHost {
 	}
 
 	HostProxy::~HostProxy() {
+		this->!HostProxy();
+	}
+
+	HostProxy::!HostProxy() {
 		delete host;
 		if (in_f) {
 			for (int i = 0; i < channels; ++i) {

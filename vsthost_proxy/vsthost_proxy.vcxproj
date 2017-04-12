@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HostControllerProxy.h" />
+    <ClInclude Include="HostObserverProxyWrapper.h" />
     <ClInclude Include="HostProxy.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="StringConverter.h" />
@@ -156,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="HostControllerProxy.cpp" />
+    <ClCompile Include="HostObserverProxyWrapper.cpp" />
     <ClCompile Include="HostProxy.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
