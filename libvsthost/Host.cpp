@@ -148,6 +148,140 @@ public:
 	}
 
 private:
+	// for hostcontroller and observability
+	std::uint32_t GetPluginCount() const {
+		return static_cast<std::uint32_t>(plugins.Size());
+	}
+
+	bool AddPlugin(const std::string& path) {
+		return plugins.Add(path);
+	}
+
+	void DeletePlugin(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			plugins.Delete(idx);
+	}
+
+	void MoveUp(std::uint32_t idx) {
+		if (idx < plugins.Size() && idx > 0)
+			plugins.Swap(idx, idx - 1);
+	}
+
+	void MoveDown(std::uint32_t idx) {
+		if (idx < plugins.Size() - 1)
+			plugins.Swap(idx, idx + 1);
+	}
+
+	std::string GetPluginName(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].GetPluginNameA();
+		return "";
+	}
+
+	bool HasEditor(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].HasEditor();
+		return false;
+	}
+
+	void CreateEditor(std::uint32_t idx, HWND hwnd) {
+		if (idx < plugins.Size())
+			plugins[idx].CreateEditor(hwnd);
+	}
+
+	std::uint32_t GetPluginEditorHeight(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			return plugins[idx].GetEditorHeight();
+		else
+			return 0;
+	}
+
+	std::uint32_t GetPluginEditorWidth(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			return plugins[idx].GetEditorWidth();
+		else
+			return 0;
+	}
+
+	void ShowEditor(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			plugins[idx].ShowEditor();
+	}
+
+	void HideEditor(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			plugins[idx].HideEditor();
+	}
+
+	bool IsEditorShown(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].IsEditorShown();
+		return false;
+	}
+
+	bool IsBypassed(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].IsBypassed();
+		return false;
+	}
+
+	void SetBypass(std::uint32_t idx, bool bypass) {
+		if (idx < plugins.Size())
+			plugins[idx].SetBypass(bypass);
+	}
+
+	bool IsActive(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].IsActive();
+		return false;
+	}
+
+	void SetActive(std::uint32_t idx, bool active) {
+		if (idx < plugins.Size())
+			plugins[idx].SetActive(active);
+	}
+
+	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const {
+		if (idx < plugins.Size())
+			return plugins[idx].GetProgramCount();
+		return 0;
+	}
+
+	std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
+		if (plugin_idx < plugins.Size() && preset_idx < plugins[plugin_idx].GetProgramCount())
+			return plugins[plugin_idx].GetProgramNameA(preset_idx);
+		return "";
+	}
+
+	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
+		if (plugin_idx < plugins.Size() && preset_idx < plugins[plugin_idx].GetProgramCount())
+			plugins[plugin_idx].SetProgram(preset_idx);
+	}
+
+	bool SavePreset(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			return plugins[idx].SaveState();
+		return false;
+	}
+
+	bool LoadPreset(std::uint32_t idx) {
+		if (idx < plugins.Size())
+			return plugins[idx].LoadState();
+		return false;
+	}
+
+	bool SavePreset(std::uint32_t idx, const std::string& path) {
+		if (idx < plugins.Size())
+			return plugins[idx].SaveState(path);
+		return false;
+	}
+
+	bool LoadPreset(std::uint32_t idx, const std::string& path) {
+		if (idx < plugins.Size())
+			return plugins[idx].LoadState(path);
+		return false;
+	}
+
 	void AllocateBuffers() {
 		unsigned i = 0;
 		for (auto& buffer : smart_buffers) {
@@ -316,136 +450,99 @@ bool HostController::SavePluginList() const {
 }
 
 std::uint32_t HostController::GetPluginCount() const {
-	return static_cast<std::uint32_t>(host->plugins.Size());
+	return host->GetPluginCount();
 }
 
 bool HostController::AddPlugin(const std::string& path) {
-	return host->plugins.Add(path);
+	return host->AddPlugin(path);
 }
 
 void HostController::DeletePlugin(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		host->plugins.Delete(idx);
+	return host->DeletePlugin(idx);
 }
 
 void HostController::MoveUp(std::uint32_t idx) {
-	if (idx < host->plugins.Size() && idx > 0)
-		host->plugins.Swap(idx, idx - 1);
+	return host->MoveUp(idx);
 }
 
 void HostController::MoveDown(std::uint32_t idx) {
-	if (idx < host->plugins.Size() - 1)
-		host->plugins.Swap(idx, idx + 1);
+	return host->MoveDown(idx);
 }
 
 std::string HostController::GetPluginName(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].GetPluginNameA();
-	return "";
+	return host->GetPluginName(idx);
 }
 
 bool HostController::HasEditor(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].HasEditor();
-	return false;
+	return host->HasEditor(idx);
 }
 
 void HostController::CreateEditor(std::uint32_t idx, HWND hwnd) {
-	if (idx < host->plugins.Size())
-		host->plugins[idx].CreateEditor(hwnd);
+	return host->CreateEditor(idx, hwnd);
 }
 
 std::uint32_t HostController::GetPluginEditorHeight(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].GetEditorHeight();
-	else
-		return 0;
+	return host->GetPluginEditorHeight(idx);
 }
 
 std::uint32_t HostController::GetPluginEditorWidth(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].GetEditorWidth();
-	else
-		return 0;
+	return host->GetPluginEditorWidth(idx);
 }
 
 void HostController::ShowEditor(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		host->plugins[idx].ShowEditor();
+	return host->ShowEditor(idx);
 }
 
 void HostController::HideEditor(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		host->plugins[idx].HideEditor();
+	return host->HideEditor(idx);
 }
 
 bool HostController::IsEditorShown(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].IsEditorShown();
-	return false;
+	return host->IsEditorShown(idx);
 }
 
 bool HostController::IsBypassed(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].IsBypassed();
-	return false;
+	return host->IsBypassed(idx);
 }
 
 void HostController::SetBypass(std::uint32_t idx, bool bypass) {
-	if (idx < host->plugins.Size())
-		host->plugins[idx].SetBypass(bypass);
+	return host->SetBypass(idx, bypass);
 }
 
 bool HostController::IsActive(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].IsActive();
-	return false;
+	return host->IsActive(idx);
 }
 
 void HostController::SetActive(std::uint32_t idx, bool active) {
-	if (idx < host->plugins.Size())
-		host->plugins[idx].SetActive(active);
+	return host->SetActive(idx, active);
 }
 
 std::uint32_t HostController::GetPluginPresetCount(std::uint32_t idx) const {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].GetProgramCount();
-	return 0;
+	return host->GetPluginPresetCount(idx);
 }
 
 std::string HostController::GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-	if (plugin_idx < host->plugins.Size() && preset_idx < host->plugins[plugin_idx].GetProgramCount())
-		return host->plugins[plugin_idx].GetProgramNameA(preset_idx);
-	return "";
+	return host->GetPluginPresetName(plugin_idx, preset_idx);
 }
 
 void HostController::SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-	if (plugin_idx < host->plugins.Size() && preset_idx < host->plugins[plugin_idx].GetProgramCount())
-		host->plugins[plugin_idx].SetProgram(preset_idx);
+	return host->SetPluginPreset(plugin_idx, preset_idx);
 }
 
 bool HostController::SavePreset(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].SaveState();
-	return false;
+	return host->SavePreset(idx);
 }
 
 bool HostController::LoadPreset(std::uint32_t idx) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].LoadState();
-	return false;
+	return host->LoadPreset(idx);
 }
 
 bool HostController::SavePreset(std::uint32_t idx, const std::string& path) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].SaveState(path);
-	return false;
+	return host->SavePreset(idx, path);
 }
 
 bool HostController::LoadPreset(std::uint32_t idx, const std::string& path) {
-	if (idx < host->plugins.Size())
-		return host->plugins[idx].LoadState(path);
-	return false;
+	return host->LoadPreset(idx, path);
 }
 
 IHostController* Host::GetController() {
