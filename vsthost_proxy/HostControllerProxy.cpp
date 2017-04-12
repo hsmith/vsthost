@@ -1,5 +1,6 @@
 #include "Stdafx.h"
 #include "HostControllerProxy.h"
+#include "HostObserverProxyWrapper.h"
 #include "StringConverter.h"
 #include "libvsthost/Host.h"
 
@@ -10,8 +11,14 @@ namespace VSTHost {
 	}
 
 	HostControllerProxy::~HostControllerProxy() {
-		delete hc;
+		this->!HostControllerProxy();
 	}
+
+	HostControllerProxy::!HostControllerProxy() {
+		if (hc)
+			delete hc;
+	}
+
 
 	bool HostControllerProxy::LoadPluginList(String^ path) {
 		return hc->LoadPluginList(StringConverter::Convert(path));
@@ -127,6 +134,14 @@ namespace VSTHost {
 
 	bool HostControllerProxy::LoadPreset(UInt32 idx, String^ path) {
 		return hc->LoadPreset(idx, StringConverter::Convert(path));
+	}
+
+	void HostControllerProxy::RegisterObserver(HostObserverProxyWrapper^ o) {
+		hc->RegisterObserver(o->GetHostObserver());
+	}
+
+	void HostControllerProxy::UnregisterObserver(HostObserverProxyWrapper^ o) {
+		hc->UnregisterObserver(o->GetHostObserver());
 	}
 
 }

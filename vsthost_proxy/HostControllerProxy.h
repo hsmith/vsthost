@@ -6,12 +6,14 @@ using System::IntPtr;
 
 namespace VSTHost {
 	class IHostController;
+	ref class HostObserverProxyWrapper;
 	public ref class HostControllerProxy
 	{
 	internal:
 		HostControllerProxy(IHostController* hc_);
 	public:
 		~HostControllerProxy();
+		!HostControllerProxy();
 		bool LoadPluginList(String^ path);
 		bool SavePluginList(String^ path);
 		bool LoadPluginList();
@@ -40,6 +42,8 @@ namespace VSTHost {
 		bool LoadPreset(UInt32 idx);
 		bool SavePreset(UInt32 idx, String^ path);
 		bool LoadPreset(UInt32 idx, String^ path);
+		void RegisterObserver(HostObserverProxyWrapper^ o);
+		void UnregisterObserver(HostObserverProxyWrapper^ o);
 	private:
 		IHostController* hc;
 	};

@@ -26,7 +26,7 @@ public:
 	bool SavePluginList(const std::string& path) const;
 	bool LoadPluginList();
 	bool SavePluginList() const;
-	IHostController* Host::GetController();
+	IHostController* GetController();
 private:
 	class HostImpl;
 	std::shared_ptr<HostImpl> impl;
