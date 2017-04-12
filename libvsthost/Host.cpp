@@ -13,13 +13,14 @@
 #include "pluginterfaces/vst/ivsthostapplication.h"
 DEF_CLASS_IID(Steinberg::Vst::IHostApplication)
 
+#include "HostObserver.h"
 #include "HostWindow.h"
 #include "Plugin.h"
 #include "PluginManager.h"
 
 namespace VSTHost {
-class Host::HostImpl : Steinberg::Vst::IHostApplication {
-friend class HostController;
+class Host::HostImpl : public HostSubject, public Steinberg::Vst::IHostApplication {
+	friend class HostController;
 public:
 	HostImpl(std::int64_t block_size, double sample_rate)
 		: block_size(block_size), sample_rate(sample_rate), plugins(block_size, sample_rate, UnknownCast()) {
@@ -106,7 +107,11 @@ public:
 	}
 
 	bool LoadPluginList(const std::string& path) {
-		return plugins.LoadPluginList(path);
+		if (plugins.LoadPluginList(path)) {
+			Notify(HostEvent::ListLoaded);
+			return true;
+		}
+		return false;
 	}
 
 	bool SavePluginList(const std::string& path) const {
@@ -114,7 +119,11 @@ public:
 	}
 
 	bool LoadPluginList() {
-		return plugins.LoadPluginList();
+		if (plugins.LoadPluginList()) {
+			Notify(HostEvent::ListLoaded);
+			return true;
+		}
+		return false;
 	}
 
 	bool SavePluginList() const {
@@ -154,22 +163,32 @@ private:
 	}
 
 	bool AddPlugin(const std::string& path) {
-		return plugins.Add(path);
+		if (plugins.Add(path)) {
+			Notify(HostEvent::Added, static_cast<std::uint32_t>(plugins.Size() - 1));
+			return true;
+		}
+		return false;
 	}
 
 	void DeletePlugin(std::uint32_t idx) {
-		if (idx < plugins.Size())
+		if (idx < plugins.Size()) {
 			plugins.Delete(idx);
+			Notify(HostEvent::Deleted, idx);
+		}
 	}
 
 	void MoveUp(std::uint32_t idx) {
-		if (idx < plugins.Size() && idx > 0)
+		if (idx < plugins.Size() && idx > 0) {
 			plugins.Swap(idx, idx - 1);
+			Notify(HostEvent::MovedUp, idx);
+		}
 	}
 
 	void MoveDown(std::uint32_t idx) {
-		if (idx < plugins.Size() - 1)
+		if (plugins.Size() > 0 && idx < plugins.Size() - 1) {
 			plugins.Swap(idx, idx + 1);
+			Notify(HostEvent::MovedDown, idx);
+		}
 	}
 
 	std::string GetPluginName(std::uint32_t idx) const {
@@ -204,13 +223,17 @@ private:
 	}
 
 	void ShowEditor(std::uint32_t idx) {
-		if (idx < plugins.Size())
+		if (idx < plugins.Size()) {
 			plugins[idx].ShowEditor();
+			Notify(HostEvent::EditorShown, idx);
+		}
 	}
 
 	void HideEditor(std::uint32_t idx) {
-		if (idx < plugins.Size())
+		if (idx < plugins.Size()) {
 			plugins[idx].HideEditor();
+			Notify(HostEvent::EditorHidden, idx);
+		}
 	}
 
 	bool IsEditorShown(std::uint32_t idx) const {
@@ -226,8 +249,10 @@ private:
 	}
 
 	void SetBypass(std::uint32_t idx, bool bypass) {
-		if (idx < plugins.Size())
+		if (idx < plugins.Size()) {
 			plugins[idx].SetBypass(bypass);
+			Notify(HostEvent::BypassSet, idx, bypass);
+		}
 	}
 
 	bool IsActive(std::uint32_t idx) const {
@@ -254,8 +279,10 @@ private:
 	}
 
 	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-		if (plugin_idx < plugins.Size() && preset_idx < plugins[plugin_idx].GetProgramCount())
+		if (plugin_idx < plugins.Size() && preset_idx < plugins[plugin_idx].GetProgramCount()) {
 			plugins[plugin_idx].SetProgram(preset_idx);
+			Notify(HostEvent::PresetSet, plugin_idx, preset_idx);
+		}
 	}
 
 	bool SavePreset(std::uint32_t idx) {
@@ -422,6 +449,8 @@ public:
 	bool LoadPreset(std::uint32_t idx) override;
 	bool SavePreset(std::uint32_t idx, const std::string& path) override;
 	bool LoadPreset(std::uint32_t idx, const std::string& path) override;
+	void RegisterObserver(HostObserver* o) override;
+	void UnregisterObserver(HostObserver* o) override;
 private:
 	friend IHostController* Host::GetController();
 	HostController(std::shared_ptr<Host::HostImpl> impl);
@@ -543,6 +572,14 @@ bool HostController::SavePreset(std::uint32_t idx, const std::string& path) {
 
 bool HostController::LoadPreset(std::uint32_t idx, const std::string& path) {
 	return host->LoadPreset(idx, path);
+}
+
+void HostController::RegisterObserver(HostObserver* o) {
+	return host->Register(o);
+}
+
+void HostController::UnregisterObserver(HostObserver* o) {
+	return host->Unregister(o);
 }
 
 IHostController* Host::GetController() {

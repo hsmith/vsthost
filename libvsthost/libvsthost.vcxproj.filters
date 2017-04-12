@@ -99,6 +99,9 @@
     <ClCompile Include="..\..\VST3 SDK\pluginterfaces\base\funknown.cpp">
       <Filter>VST3 SDK\base</Filter>
     </ClCompile>
+    <ClCompile Include="HostObserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Host.h">
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="..\..\VST3 SDK\pluginterfaces\base\pluginbasefwd.h">
       <Filter>VST3 SDK\base</Filter>
+    </ClInclude>
+    <ClInclude Include="HostObserver.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

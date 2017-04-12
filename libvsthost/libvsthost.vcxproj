@@ -165,6 +165,7 @@
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.cpp" />
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.cpp" />
     <ClCompile Include="Host.cpp" />
+    <ClCompile Include="HostObserver.cpp" />
     <ClCompile Include="HostWindow.cpp" />
     <ClCompile Include="ParameterChanges.cpp" />
     <ClCompile Include="Plugin.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.h" />
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.h" />
     <ClInclude Include="Host.h" />
+    <ClInclude Include="HostObserver.h" />
     <ClInclude Include="HostWindow.h" />
     <ClInclude Include="ParameterChanges.h" />
     <ClInclude Include="PluginManager.h" />

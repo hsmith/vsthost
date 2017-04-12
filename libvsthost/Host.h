@@ -9,6 +9,7 @@
 namespace VSTHost {
 class IHostController;
 class HostController;
+class HostObserver;
 class Host {
 friend HostController;
 public:
@@ -25,7 +26,7 @@ public:
 	bool SavePluginList(const std::string& path) const;
 	bool LoadPluginList();
 	bool SavePluginList() const;
-	IHostController* GetController();
+	IHostController* Host::GetController();
 private:
 	class HostImpl;
 	std::shared_ptr<HostImpl> impl;
@@ -62,6 +63,8 @@ public:
 	virtual bool LoadPreset(std::uint32_t idx) = 0;
 	virtual bool SavePreset(std::uint32_t idx, const std::string& path) = 0;
 	virtual bool LoadPreset(std::uint32_t idx, const std::string& path) = 0;
+	virtual void RegisterObserver(HostObserver* o) = 0;
+	virtual void UnregisterObserver(HostObserver* o) = 0;
 };
 } // namespace
 

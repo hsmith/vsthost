@@ -22,9 +22,12 @@ const int HostWindow::kButtonWidth = 120;
 const int HostWindow::kButtonHeight = 30;
 bool HostWindow::registered = false;
 
-HostWindow::HostWindow(IHostController* hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(hc) { }
+HostWindow::HostWindow(IHostController* hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(hc) {
+	host_ctrl->RegisterObserver(this);
+}
 
 HostWindow::~HostWindow() {
+	host_ctrl->UnregisterObserver(this);
 	if (font)
 		::DeleteObject(font);
 	for (auto b : buttons)
@@ -236,5 +239,41 @@ std::uint32_t HostWindow::GetPluginSelection() {
 void HostWindow::CreateEditors() {
 	for (decltype(host_ctrl->GetPluginCount()) i = 0; i < host_ctrl->GetPluginCount(); ++i)
 		host_ctrl->CreateEditor(i, NULL);
+}
+
+void HostWindow::OnPluginAdded(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnPluginDeleted(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnListLoaded() {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnMovedUp(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnMovedDown(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnEditorShown(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnEditorHidden(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
+
+void HostWindow::OnBypassSet(std::uint32_t idx, bool bypass) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
 }
 } // namespace
