@@ -1,0 +1,25 @@
+﻿<Window x:Class="vsthost_tester_csharp_wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:vsthost_tester_csharp_wpf"
+        mc:Ignorable="d"
+        Title="VSTHost Tester" Height="150" Width="320" ResizeMode="CanMinimize">
+    <Border Padding="20">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Button x:Name="buttonPlay" Grid.Column="0" Grid.Row="0" Margin ="0, 0, 10, 10" Content="Play" />
+            <Button x:Name="buttonStop" Grid.Column="0" Grid.Row="1" Margin ="0, 10, 10, 0" Content="Stop" />
+            <Button x:Name="buttonProcess" Grid.Column="1" Grid.Row="0" Margin ="10, 0, 0, 10" Content="Process" />
+            <Button x:Name="buttonShow" Grid.Column="1" Grid.Row="1" Margin ="10, 10, 0, 0" Content="Show Host Controller" Click="buttonShow_Click" />
+        </Grid>
+    </Border>
+</Window>

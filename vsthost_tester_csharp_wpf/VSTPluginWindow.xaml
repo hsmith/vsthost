@@ -1,0 +1,30 @@
+﻿<Window x:Class="vsthost_tester_csharp_wpf.VSTPluginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:vsthost_tester_csharp_wpf"
+        mc:Ignorable="d"
+        Title="VSTPluginWindow" Height="300" Width="300" ResizeMode="NoResize">
+
+    <StackPanel>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="Plugin">
+                    <MenuItem Header="Bypass"/>
+                    <MenuItem Header="Active"/>
+                    <MenuItem Header="Close"/>
+                </MenuItem>
+                <MenuItem Header="State">
+                    <MenuItem Header="Save"/>
+                    <MenuItem Header="Load"/>
+                </MenuItem>
+                <MenuItem Header="Preset">
+                </MenuItem>
+            </Menu>
+            <StackPanel></StackPanel>
+        </DockPanel>
+        <Button Content="ASDF"/>
+    </StackPanel>
+    
+</Window>

@@ -19,7 +19,6 @@ namespace VSTHost {
 			delete hc;
 	}
 
-
 	bool HostControllerProxy::LoadPluginList(String^ path) {
 		return hc->LoadPluginList(StringConverter::Convert(path));
 	}

@@ -78,7 +78,7 @@ namespace vsthost_tester_csharp
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 hcp.AddPlugin(ofd.FileName);
-                // need to know wheter its been added
+                // need to know whether its been added
                 PopulatePluginList();
                 uint last = hcp.GetPluginCount() - 1;
                 // to poniżej w OnPluginAdded zwracajacym indeks, chyba rozwiaze to problem wspolbieznosci hmm?
