@@ -16,9 +16,9 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Button x:Name="buttonPlay" Grid.Column="0" Grid.Row="0" Margin ="0, 0, 10, 10" Content="Play" />
-            <Button x:Name="buttonStop" Grid.Column="0" Grid.Row="1" Margin ="0, 10, 10, 0" Content="Stop" />
-            <Button x:Name="buttonProcess" Grid.Column="1" Grid.Row="0" Margin ="10, 0, 0, 10" Content="Process" />
+            <Button x:Name="buttonPlay" Grid.Column="0" Grid.Row="0" Margin ="0, 0, 10, 10" Content="Play" Click="buttonPlay_Click" />
+            <Button x:Name="buttonStop" Grid.Column="0" Grid.Row="1" Margin ="0, 10, 10, 0" Content="Stop" Click="buttonStop_Click" />
+            <Button x:Name="buttonProcess" Grid.Column="1" Grid.Row="0" Margin ="10, 0, 0, 10" Content="Process" Click="buttonProcess_Click" />
             <Button x:Name="buttonShow" Grid.Column="1" Grid.Row="1" Margin ="10, 10, 0, 0" Content="Show Host Controller" Click="buttonShow_Click" />
         </Grid>
     </Border>

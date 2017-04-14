@@ -12,16 +12,70 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+using VSTHost;
+
 namespace vsthost_tester_csharp_wpf
 {
     /// <summary>
     /// Interaction logic for VSTHostWindow.xaml
     /// </summary>
+    /// 
+    
+
     public partial class VSTHostWindow : Window
     {
-        public VSTHostWindow()
+        private class HostObserverImpl : HostObserverProxyWrapper
+        {
+            public override void OnPluginAdded(UInt32 idx)
+            {
+
+            }
+
+            public override void OnPluginDeleted(UInt32 idx)
+            {
+
+            }
+
+            public override void OnListLoaded()
+            {
+
+            }
+
+            public override void OnMovedUp(UInt32 idx)
+            {
+
+            }
+
+            public override void OnMovedDown(UInt32 idx)
+            {
+
+            }
+
+            public override void OnEditorShown(UInt32 idx)
+            {
+
+            }
+
+            public override void OnEditorHidden(UInt32 idx)
+            {
+
+            }
+
+            public override void OnPresetSet(UInt32 plugin_idx, UInt32 preset_idx)
+            {
+
+            }
+
+            public override void OnBypassSet(UInt32 idx, bool bypass)
+            {
+
+            }
+        }
+        private HostControllerProxy hcp;
+        public VSTHostWindow(HostControllerProxy hcp_)
         {
             InitializeComponent();
+            hcp = hcp_;
         }
 
         private void buttonShow_Click(object sender, RoutedEventArgs e)
