@@ -5,26 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vsthost_tester_csharp_wpf"
         mc:Ignorable="d"
-        Title="VSTPluginWindow" Height="300" Width="300" ResizeMode="NoResize">
+        Title="VSTPluginWindow" Height="300" Width="300" ResizeMode="NoResize" Closing="Window_Closing" Loaded="Window_Loaded">
 
     <StackPanel>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="Plugin">
-                    <MenuItem Header="Bypass"/>
-                    <MenuItem Header="Active"/>
-                    <MenuItem Header="Close"/>
+                    <MenuItem x:Name="menuItemBypass" Header="Bypass" Click="menuItemBypass_Click"/>
+                    <MenuItem x:Name="menuItemActive" Header="Active" Click="menuItemActive_Click"/>
+                    <MenuItem x:Name="menuItemClose" Header="Close" Click="menuItemClose_Click"/>
                 </MenuItem>
                 <MenuItem Header="State">
-                    <MenuItem Header="Save"/>
-                    <MenuItem Header="Load"/>
+                    <MenuItem x:Name="menuItemSave" Header="Save" Click="menuItemSave_Click"/>
+                    <MenuItem x:Name="menuItemLoad" Header="Load" Click="menuItemLoad_Click"/>
                 </MenuItem>
-                <MenuItem Header="Preset">
+                <MenuItem x:Name="menuItemPresets" Header="Preset">
                 </MenuItem>
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
-        <Button Content="ASDF"/>
+        <Grid x:Name="grid"/>
     </StackPanel>
     
 </Window>

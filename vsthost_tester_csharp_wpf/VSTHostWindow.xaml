@@ -13,12 +13,12 @@
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <ListBox Grid.Column="0" Margin="0, 5, 20, 5"></ListBox>
+                <ListBox x:Name="listPlugins" Grid.Column="0" Margin="0, 5, 20, 5" SelectionChanged="listPlugins_SelectionChanged" Focusable="True" />
                 <StackPanel Grid.Column="1">
-                    <Button x:Name="buttonAdd" Content="Add" Margin="0, 5"/>
-                    <Button x:Name="buttonDelete" Content="Delete" Margin="0, 5"/>
-                    <Button x:Name="buttonUp" Content="Move Up" Margin="0, 5"/>
-                    <Button x:Name="buttonDown" Content="Move Down" Margin="0, 5"/>
+                    <Button x:Name="buttonAdd" Content="Add" Margin="0, 5" Click="buttonAdd_Click"/>
+                    <Button x:Name="buttonDelete" Content="Delete" Margin="0, 5" Click="buttonDelete_Click"/>
+                    <Button x:Name="buttonUp" Content="Move Up" Margin="0, 5" Click="buttonUp_Click"/>
+                    <Button x:Name="buttonDown" Content="Move Down" Margin="0, 5" Click="buttonDown_Click"/>
                     <Button x:Name="buttonShow" Content="Show" Margin="0, 5" Click="buttonShow_Click"/>
                 </StackPanel>
             </Grid>
@@ -27,8 +27,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" x:Name="buttonLoad" Content="Load From Plugin List" Margin="0, 5, 5, 5"/>
-                <Button Grid.Column="1" x:Name="buttonSave" Content="Save Plugin List" Margin="5, 5, 0, 5"/>
+                <Button Grid.Column="0" x:Name="buttonLoad" Content="Load From Plugin List" Margin="0, 5, 5, 5" Click="buttonLoad_Click"/>
+                <Button Grid.Column="1" x:Name="buttonSave" Content="Save Plugin List" Margin="5, 5, 0, 5" Click="buttonSave_Click"/>
             </Grid>
 
         </StackPanel>
