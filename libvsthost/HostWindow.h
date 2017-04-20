@@ -47,6 +47,7 @@ private:
 	void OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
 	void OnBypassSet(std::uint32_t idx, bool bypass) override;
 	void OnActiveSet(std::uint32_t idx, bool active) override;
+	void OnStateLoaded(std::uint32_t idx) override;
 	static bool registered;
 	HFONT font;
 	HWND plugin_list;

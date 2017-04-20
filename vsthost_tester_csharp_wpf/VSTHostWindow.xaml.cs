@@ -81,6 +81,11 @@ namespace vsthost_tester_csharp_wpf
             {
                 parent.OnActiveSet(idx, active);
             }
+
+            public override void OnStateLoaded(UInt32 idx)
+            {
+                parent.OnStateLoaded(idx);
+            }
         }
         private Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
         private HostObserverImpl hoi;
@@ -261,6 +266,11 @@ namespace vsthost_tester_csharp_wpf
         private void OnActiveSet(UInt32 idx, bool active)
         {
             pluginWindows[Convert.ToInt32(idx)].ActiveSet(active);
+        }
+
+        private void OnStateLoaded(UInt32 idx)
+        {
+            pluginWindows[Convert.ToInt32(idx)].StateLoaded();
         }
 
         private void listPlugins_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -51,6 +51,10 @@ void HostSubject::Notify(HostEvent e, std::uint32_t v1, std::uint32_t v2) {
 			for (auto o : observers)
 				o->OnActiveSet(v1, v2 != 0);
 			break;
+		case HostEvent::StateLoaded:
+			for (auto o : observers)
+				o->OnStateLoaded(v1);
+			break;
 		default:
 			break;
 	}

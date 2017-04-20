@@ -280,4 +280,8 @@ void HostWindow::OnBypassSet(std::uint32_t idx, bool bypass) {
 void HostWindow::OnActiveSet(std::uint32_t idx, bool active) {
 	MessageBoxA(NULL, __func__, NULL, NULL);
 }
+
+void HostWindow::OnStateLoaded(std::uint32_t idx) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
 } // namespace

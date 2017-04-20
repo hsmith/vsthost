@@ -27,7 +27,9 @@ namespace vsthost_tester_csharp_wpf
         private System.Windows.Forms.Integration.WindowsFormsHost host = new System.Windows.Forms.Integration.WindowsFormsHost();
         private System.Windows.Forms.UserControl uc = new System.Windows.Forms.UserControl();
 
-        private bool size_fixed = false;
+        private bool sizeFixed = false;
+
+        private MenuItem lastPreset = null;
 
         public VSTPluginWindow(HostControllerProxy hcp_, uint i)
         {
@@ -48,10 +50,10 @@ namespace vsthost_tester_csharp_wpf
         public void ShowEditor()
         {
             hcp.ShowEditor(index);
-            if (size_fixed == false)
+            if (sizeFixed == false)
             {
                 FixSize();
-                size_fixed = true;
+                sizeFixed = true;
             }
             Show();
         }
@@ -84,9 +86,17 @@ namespace vsthost_tester_csharp_wpf
 
         public void PresetSet(uint idx)
         {
+            if (lastPreset != null)
+                lastPreset.IsChecked = false;
             var idx_ = Convert.ToInt32(idx);
-            for (int i = 0; i < menuItemPresets.Items.Count; ++i)
-                (menuItemPresets.Items[i] as MenuItem).IsChecked = i == idx_;
+            lastPreset = (menuItemPresets.Items[idx_] as MenuItem);
+            lastPreset.IsChecked = true;
+        }
+
+        public void StateLoaded()
+        {
+            if (lastPreset != null)
+                lastPreset.IsChecked = false;
         }
 
         private void GeneratePresetMenu()
@@ -182,6 +192,7 @@ namespace vsthost_tester_csharp_wpf
                 hcp.SavePreset(index, sfd.FileName);
             }
         }
+
         private void menuItemPreset_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < menuItemPresets.Items.Count; ++i)

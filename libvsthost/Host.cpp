@@ -294,8 +294,10 @@ private:
 	}
 
 	bool LoadPreset(std::uint32_t idx) {
-		if (idx < plugins.Size())
-			return plugins[idx].LoadState();
+		if (idx < plugins.Size() && plugins[idx].LoadState()) {
+			Notify(HostEvent::StateLoaded, idx);
+			return true;
+		}
 		return false;
 	}
 
@@ -306,8 +308,10 @@ private:
 	}
 
 	bool LoadPreset(std::uint32_t idx, const std::string& path) {
-		if (idx < plugins.Size())
-			return plugins[idx].LoadState(path);
+		if (idx < plugins.Size() && plugins[idx].LoadState(path)) {
+			Notify(HostEvent::StateLoaded, idx);
+			return true;
+		}
 		return false;
 	}
 

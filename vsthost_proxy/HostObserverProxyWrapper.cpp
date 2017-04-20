@@ -46,6 +46,10 @@ namespace VSTHost {
 		wrapper->OnActiveSet(idx, active);
 	}
 
+	void HostObserverProxy::OnStateLoaded(std::uint32_t idx) {
+		wrapper->OnStateLoaded(idx);
+	}
+
 	HostObserverProxyWrapper::HostObserverProxyWrapper() {
 		ho = new HostObserverProxy(this);
 	}
