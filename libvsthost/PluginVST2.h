@@ -33,6 +33,7 @@ public:
 	void SetProgram(Steinberg::uint32 id) override;
 	std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id) override;
 	std::string GetProgramNameA(Steinberg::uint32 id) override;
+	std::string GetPresetExtension() override;
 	// parameters
 	Steinberg::uint32 GetParameterCount() const override;
 	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const override;

@@ -16,8 +16,10 @@
                     <MenuItem x:Name="menuItemClose" Header="Close" Click="menuItemClose_Click"/>
                 </MenuItem>
                 <MenuItem Header="State">
-                    <MenuItem x:Name="menuItemSave" Header="Save" Click="menuItemSave_Click"/>
-                    <MenuItem x:Name="menuItemLoad" Header="Load" Click="menuItemLoad_Click"/>
+                    <MenuItem Header="Save" Click="menuItemSave_Click"/>
+                    <MenuItem Header="Load" Click="menuItemLoad_Click"/>
+                    <MenuItem Header="Save As..." Click="menuItemSaveAs_Click"/>
+                    <MenuItem Header="Load From..." Click="menuItemLoadFrom_Click"/>
                 </MenuItem>
                 <MenuItem x:Name="menuItemPresets" Header="Preset">
                 </MenuItem>

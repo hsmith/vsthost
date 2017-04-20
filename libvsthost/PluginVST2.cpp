@@ -197,6 +197,10 @@ void PluginVST2::SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamV
 	plugin->setParameter(plugin.get(), id, static_cast<float>(value));
 }
 
+std::string PluginVST2::GetPresetExtension() {
+	return PresetVST2::kExtension;
+}
+
 void PluginVST2::SetBypass(bool bypass_) {
 	if (bypass != bypass_) {
 		bypass = bypass_;

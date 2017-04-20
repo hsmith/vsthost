@@ -119,6 +119,10 @@ namespace VSTHost {
 		return hc->SetPluginPreset(plugin_idx, preset_idx);
 	}
 
+	String^ HostControllerProxy::GetPluginPresetExtension(UInt32 idx) {
+		return StringConverter::Convert(hc->GetPluginPresetExtension(idx));
+	}
+
 	bool HostControllerProxy::SavePreset(UInt32 idx) {
 		return hc->SavePreset(idx);
 	}

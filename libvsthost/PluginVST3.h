@@ -49,6 +49,7 @@ public:
 	Steinberg::uint32 GetParameterCount() const override;
 	Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const override;
 	void SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue value) override;
+	std::string GetPresetExtension() override;
 	// active and bypass flags
 	void SetBypass(bool bypass_) override;
 	bool BypassProcess() const override;

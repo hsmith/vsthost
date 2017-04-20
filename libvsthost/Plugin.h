@@ -41,6 +41,7 @@ public:
 	virtual void SetProgram(Steinberg::uint32 id) = 0;
 	virtual std::basic_string<TCHAR> GetProgramName(Steinberg::uint32 id) = 0;
 	virtual std::string GetProgramNameA(Steinberg::uint32 id) = 0;
+	virtual std::string GetPresetExtension() = 0;
 	// parameters
 	virtual Steinberg::uint32 GetParameterCount() const = 0;
 	virtual Steinberg::Vst::ParamValue GetParameter(Steinberg::Vst::ParamID id) const = 0;

@@ -447,6 +447,7 @@ public:
 	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const override;
 	std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
 	void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
+	std::string HostController::GetPluginPresetExtension(std::uint32_t idx) override;
 	bool SavePreset(std::uint32_t idx) override;
 	bool LoadPreset(std::uint32_t idx) override;
 	bool SavePreset(std::uint32_t idx, const std::string& path) override;
@@ -558,6 +559,10 @@ std::string HostController::GetPluginPresetName(std::uint32_t plugin_idx, std::u
 
 void HostController::SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
 	return host->SetPluginPreset(plugin_idx, preset_idx);
+}
+
+std::string HostController::GetPluginPresetExtension(std::uint32_t idx) {
+	return host->plugins[idx].GetPresetExtension();
 }
 
 bool HostController::SavePreset(std::uint32_t idx) {

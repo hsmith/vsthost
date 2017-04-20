@@ -62,6 +62,7 @@ public:
 	virtual std::uint32_t GetPluginPresetCount(std::uint32_t idx) const = 0;
 	virtual std::string GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) = 0;
 	virtual void SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) = 0;
+	virtual std::string GetPluginPresetExtension(std::uint32_t idx) = 0;
 	virtual bool SavePreset(std::uint32_t idx) = 0;
 	virtual bool LoadPreset(std::uint32_t idx) = 0;
 	virtual bool SavePreset(std::uint32_t idx, const std::string& path) = 0;

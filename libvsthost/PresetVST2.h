@@ -12,6 +12,7 @@ namespace VSTHost {
 class PluginVST2;
 class PresetVST2 : public Preset {
 public:
+	static const std::string kExtension;
 	PresetVST2(PluginVST2& p);
 	~PresetVST2();
 	bool Load() override;
@@ -25,7 +26,6 @@ private:
 	bool ProgramChunks() const;
 	static bool SwapNeeded();
 	static const size_t kProgramUnionSize;	// sizeof(fxProgram::content)
-	static const std::string kExtension;
 	fxProgram* program;
 	std::unique_ptr<char[]> program_data;
 	size_t fxprogram_size; // size of fxprogram in this particular instance, without 2 first values

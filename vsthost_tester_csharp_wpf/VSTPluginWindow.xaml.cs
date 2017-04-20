@@ -158,6 +158,30 @@ namespace vsthost_tester_csharp_wpf
             hcp.SavePreset(index);
         }
 
+        private void menuItemLoadFrom_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+            var ext = hcp.GetPluginPresetExtension(index);
+            ofd.Filter = String.Format("VST{0} Preset file (*.{1})|*.{1}|All files (*.*)|*.*", ext.Equals("fxp") ? 2 : 3, ext);
+            var result = ofd.ShowDialog();
+            if (result == true)
+            {
+                hcp.LoadPreset(index, ofd.FileName);
+            }
+        }
+
+        private void menuItemSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog();
+            var ext = hcp.GetPluginPresetExtension(index);
+            sfd.Filter = String.Format("VST{0} Preset file (*.{1})|*.{1}|All files (*.*)|*.*", ext.Equals("fxp") ? 2 : 3, ext);
+            sfd.DefaultExt = ext;
+            var result = sfd.ShowDialog();
+            if (result == true)
+            {
+                hcp.SavePreset(index, sfd.FileName);
+            }
+        }
         private void menuItemPreset_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < menuItemPresets.Items.Count; ++i)

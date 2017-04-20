@@ -38,6 +38,7 @@ namespace VSTHost {
 		UInt32 GetPluginPresetCount(UInt32 idx);
 		String^ GetPluginPresetName(UInt32 plugin_idx, UInt32 preset_idx);
 		void SetPluginPreset(UInt32 plugin_idx, UInt32 preset_idx);
+		String^ GetPluginPresetExtension(UInt32 idx);
 		bool SavePreset(UInt32 idx);
 		bool LoadPreset(UInt32 idx);
 		bool SavePreset(UInt32 idx, String^ path);

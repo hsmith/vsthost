@@ -382,6 +382,10 @@ std::string PluginVST3::GetProgramNameA(Steinberg::uint32 id) {
 	return "";
 }
 
+std::string PluginVST3::GetPresetExtension() {
+	return PresetVST3::kExtension;
+}
+
 Steinberg::uint32 PluginVST3::GetParameterCount() const {
 	return edit_controller->getParameterCount();
 }
