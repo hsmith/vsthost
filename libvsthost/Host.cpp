@@ -262,8 +262,10 @@ private:
 	}
 
 	void SetActive(std::uint32_t idx, bool active) {
-		if (idx < plugins.Size())
+		if (idx < plugins.Size()) {
 			plugins[idx].SetActive(active);
+			Notify(HostEvent::ActiveSet, idx, active);
+		}
 	}
 
 	std::uint32_t GetPluginPresetCount(std::uint32_t idx) const {

@@ -47,6 +47,10 @@ void HostSubject::Notify(HostEvent e, std::uint32_t v1, std::uint32_t v2) {
 			for (auto o : observers)
 				o->OnBypassSet(v1, v2 != 0);
 			break;
+		case HostEvent::ActiveSet:
+			for (auto o : observers)
+				o->OnActiveSet(v1, v2 != 0);
+			break;
 		default:
 			break;
 	}

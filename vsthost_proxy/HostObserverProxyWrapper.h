@@ -20,6 +20,7 @@ namespace VSTHost {
 		void OnEditorHidden(std::uint32_t idx) override;
 		void OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx) override;
 		void OnBypassSet(std::uint32_t idx, bool bypass) override;
+		void OnActiveSet(std::uint32_t idx, bool active) override;
 	private:
 		gcroot<HostObserverProxyWrapper^> wrapper;
 	};
@@ -38,6 +39,7 @@ namespace VSTHost {
 		virtual void OnEditorHidden(UInt32 idx) = 0;
 		virtual void OnPresetSet(UInt32 plugin_idx, UInt32 preset_idx) = 0;
 		virtual void OnBypassSet(UInt32 idx, bool bypass) = 0;
+		virtual void OnActiveSet(UInt32 idx, bool active) = 0;
 	internal:
 		HostObserver* GetHostObserver();
 	private:

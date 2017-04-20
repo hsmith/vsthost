@@ -276,4 +276,8 @@ void HostWindow::OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx)
 void HostWindow::OnBypassSet(std::uint32_t idx, bool bypass) {
 	MessageBoxA(NULL, __func__, NULL, NULL);
 }
+
+void HostWindow::OnActiveSet(std::uint32_t idx, bool active) {
+	MessageBoxA(NULL, __func__, NULL, NULL);
+}
 } // namespace

@@ -42,6 +42,10 @@ namespace VSTHost {
 		wrapper->OnBypassSet(idx, bypass);
 	}
 
+	void HostObserverProxy::OnActiveSet(std::uint32_t idx, bool active) {
+		wrapper->OnActiveSet(idx, active);
+	}
+
 	HostObserverProxyWrapper::HostObserverProxyWrapper() {
 		ho = new HostObserverProxy(this);
 	}

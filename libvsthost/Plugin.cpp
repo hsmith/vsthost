@@ -42,7 +42,7 @@ std::string Plugin::GetPluginPath() const {
 void Plugin::SetActive(bool active_) {
 	if (active != active_) {
 		std::lock_guard<std::mutex> lock(plugin_lock);
-		if (active = active_)
+		if (active_)
 			Resume();
 		else
 			Suspend();

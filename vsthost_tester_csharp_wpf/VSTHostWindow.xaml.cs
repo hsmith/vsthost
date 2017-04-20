@@ -76,6 +76,11 @@ namespace vsthost_tester_csharp_wpf
             {
                 parent.OnBypassSet(idx, bypass);
             }
+
+            public override void OnActiveSet(UInt32 idx, bool active)
+            {
+                parent.OnActiveSet(idx, active);
+            }
         }
         private Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
         private HostObserverImpl hoi;
@@ -251,6 +256,11 @@ namespace vsthost_tester_csharp_wpf
         private void OnBypassSet(UInt32 idx, bool bypass)
         {
             pluginWindows[Convert.ToInt32(idx)].BypassSet(bypass);
+        }
+
+        private void OnActiveSet(UInt32 idx, bool active)
+        {
+            pluginWindows[Convert.ToInt32(idx)].ActiveSet(active);
         }
 
         private void listPlugins_SelectionChanged(object sender, SelectionChangedEventArgs e)

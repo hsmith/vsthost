@@ -17,7 +17,8 @@ public:
 		EditorShown,
 		EditorHidden,
 		PresetSet,
-		BypassSet
+		BypassSet,
+		ActiveSet
 	};
 	void Notify(HostEvent e, std::uint32_t v1 = 0, std::uint32_t v2 = 0);
 	HostSubject();
@@ -42,6 +43,7 @@ protected:
 	virtual void OnEditorHidden(std::uint32_t idx) = 0;
 	virtual void OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx) = 0;
 	virtual void OnBypassSet(std::uint32_t idx, bool bypass) = 0;
+	virtual void OnActiveSet(std::uint32_t idx, bool active) = 0;
 };
 } // namespace
 

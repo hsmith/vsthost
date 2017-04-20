@@ -37,6 +37,8 @@ namespace vsthost_tester_csharp_wpf
 
             SizeToContent = SizeToContent.WidthAndHeight;
             Title = hcp.GetPluginName(index);
+            menuItemBypass.IsChecked = hcp.IsBypassed(index);
+            menuItemActive.IsChecked = hcp.IsActive(index);
 
             hcp.CreateEditor(index, uc.Handle);
             FixSize();
