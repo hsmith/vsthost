@@ -13,6 +13,9 @@ class HostObserver;
 class Host {
 friend HostController;
 public:
+	static constexpr auto kPluginDirectory{ ".\\..\\..\\plugins" };
+	static constexpr auto kPluginList{ ".\\..\\vsthost.ini" };
+
 	Host(std::int64_t max_num_samples, double sample_rate); // max_num_samples is maximum number of samples per channel
 	~Host();
 	void Process(float** input, float** output, std::int64_t num_samples); // num_samples - samples per channel

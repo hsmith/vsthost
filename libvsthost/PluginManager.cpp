@@ -9,8 +9,6 @@
 #include "PluginLoader.h"
 
 namespace VSTHost {
-const std::string PluginManager::kPluginList{ ".\\..\\vsthost.ini" };
-
 PluginManager::PluginIterator::PluginIterator(std::vector<std::unique_ptr<Plugin>>::iterator i) : it(i) {}
 bool PluginManager::PluginIterator::operator!=(PluginIterator& i) { return it != i.it; }
 PluginManager::PluginIterator PluginManager::PluginIterator::operator++() { return PluginIterator(++it); }
@@ -76,10 +74,6 @@ void PluginManager::Delete(IndexType i) {
 void PluginManager::Swap(IndexType i, IndexType j) {
 	if (i < Size() && j < Size())
 		std::swap(plugins[i], plugins[j]);
-}
-
-const std::string& PluginManager::GetDefaultPluginListPath() const {
-	return kPluginList;
 }
 
 bool PluginManager::LoadPluginList(const std::string& path) {

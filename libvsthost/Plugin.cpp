@@ -4,8 +4,6 @@
 #include "PluginWindow.h"
 
 namespace VSTHost {
-const std::string Plugin::kPluginDirectory{ ".\\..\\..\\plugins" };
-
 Plugin::Plugin(HMODULE m) : module(m) {
 
 }

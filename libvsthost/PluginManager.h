@@ -9,6 +9,8 @@
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/base/funknown.h"
 
+#include "Host.h"
+
 namespace VSTHost {
 class Plugin;
 class PluginLoader;
@@ -38,16 +40,14 @@ public:
 	void Delete(IndexType i);
 	void Swap(IndexType i, IndexType j);
 
-	const std::string& GetDefaultPluginListPath() const;
-	bool LoadPluginList(const std::string& path = kPluginList);
-	bool SavePluginList(const std::string& path = kPluginList) const;
+	bool LoadPluginList(const std::string& path = Host::kPluginList);
+	bool SavePluginList(const std::string& path = Host::kPluginList) const;
 
 	void SetBlockSize(Steinberg::Vst::TSamples bs);
 	void SetSampleRate(Steinberg::Vst::SampleRate sr);
 private:
 	std::string GetRelativePath(const std::string& absolute) const;
 	std::string GetAbsolutePath(const std::string& relative) const;
-	const static std::string kPluginList;
 	Steinberg::Vst::TSamples def_block_size;		// default block size & sample rate
 	Steinberg::Vst::SampleRate def_sample_rate;		// for new plugins
 	Steinberg::FUnknown* vst3_context;

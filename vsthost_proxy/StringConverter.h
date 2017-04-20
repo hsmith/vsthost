@@ -14,5 +14,8 @@ namespace VSTHost {
 		static System::String^ Convert(const std::string& str) {
 			return gcnew System::String(str.c_str());
 		}
+		static System::String^ Convert(const char* str) {
+			return gcnew System::String(str);
+		}
 	};
 }

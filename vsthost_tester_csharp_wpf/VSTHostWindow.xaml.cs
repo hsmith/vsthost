@@ -95,7 +95,7 @@ namespace vsthost_tester_csharp_wpf
             hcp.RegisterObserver(hoi);
             
             ofd.Filter = "VST Plugins (*.dll, *.vst3)|*.dll;*.vst3|VST2 Plugins (*.dll)|*.dll|VST3 Plugins (*.vst3)|*.vst3";
-            //ofd.InitialDirectory = "asdf";
+            ofd.InitialDirectory = System.IO.Path.GetFullPath(HostProxy.PluginDirectory);
 
             Initialize();
             SetButtons();

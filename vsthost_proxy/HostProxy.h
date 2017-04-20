@@ -1,5 +1,8 @@
 #pragma once
 
+#include "libvsthost/Host.h"
+#include "StringConverter.h"
+
 using System::String;
 using System::Byte;
 using System::Int16;
@@ -8,9 +11,11 @@ using System::Int64;
 namespace VSTHost {
 	class Host;
 	ref class HostControllerProxy;
+
 	public ref class HostProxy
 	{
 	public:
+		static const String^ PluginDirectory = StringConverter::Convert(Host::kPluginDirectory);
 		HostProxy(Int64 max_num_samples, double sample_rate);
 		~HostProxy();
 		!HostProxy();

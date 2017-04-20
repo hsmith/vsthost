@@ -189,7 +189,7 @@ void HostWindow::OpenDialog() {
 		ofn->hwndOwner = wnd;
 		ofn->lpstrFilter = "VST Plugins (*.dll, *.vst3)\0*.dll;*.vst3\0VST2 Plugins (*.dll)\0*.dll\0VST3 Plugins (*.vst3)\0*.vst3\0";
 		ofn->nMaxFile = sizeof(filename);
-		ofn->lpstrInitialDir = Plugin::kPluginDirectory.c_str();
+		ofn->lpstrInitialDir = Host::kPluginDirectory;
 		ofn->Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	}
 	ofn->lpstrFile = filename;

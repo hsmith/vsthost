@@ -13,7 +13,7 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 	program_chunks = 0 != (plugin.GetFlags() & VstAEffectFlags::effFlagsProgramChunks);
 	// set preset path
 
-	//preset_file_path = Plugin::kPluginDirectory + "\\" + plugin.GetPluginFileName();
+	//preset_file_path = Host::kPluginDirectory + "\\" + plugin.GetPluginFileName();
 	preset_file_path = plugin.GetPluginPath();
 	std::string::size_type pos = 0;
 	if ((pos = preset_file_path.find_last_of('.')) != std::string::npos)

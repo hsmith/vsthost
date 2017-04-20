@@ -64,8 +64,6 @@ public:
 	bool LoadState();
 	bool SaveState(const std::string& path);
 	bool LoadState(const std::string& path);
-
-	const static std::string Plugin::kPluginDirectory;
 protected:
 	virtual void Resume() = 0;
 	virtual void Suspend() = 0;
