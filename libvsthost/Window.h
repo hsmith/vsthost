@@ -14,6 +14,7 @@ public:
 	virtual void Show();
 	virtual void Hide();
 	void Refresh();
+	bool IsVisible();
 protected:
 	virtual void OnCreate(HWND hWnd);
 	virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;

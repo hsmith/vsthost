@@ -11,10 +11,8 @@
 #include "PluginLoader.h"
 
 namespace VSTHost {
-class PluginVST2Window;
 class PresetVST3;
 class PluginVST2 : public Plugin {
-	friend class PluginVST2Window;
 	friend class PresetVST2;
 	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context);
 	PluginVST2(HMODULE m, AEffect* p);
@@ -46,8 +44,6 @@ public:
 	void CreateEditor(HWND hwnd) override;
 	Steinberg::uint32 GetEditorHeight() override;
 	Steinberg::uint32 GetEditorWidth() override;
-	void ShowEditor() override;
-	void HideEditor() override;
 	// vst2 callback procedure wrapper
 	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 private:

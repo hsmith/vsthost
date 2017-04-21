@@ -16,7 +16,6 @@
 #include "PluginLoader.h"
 
 namespace VSTHost {
-class PluginVST3Window;
 class PresetVST3;
 class Steinberg::IPluginFactory;
 struct Steinberg::PClassInfo;
@@ -26,7 +25,6 @@ class Steinberg::Vst::IConnectionPoint;
 class ParameterValueQueue;
 class ParameterChanges;
 class PluginVST3 : public Plugin, public Steinberg::Vst::IComponentHandler {
-	friend class PluginVST3Window;
 	friend class PresetVST3;
 	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context);
 public:

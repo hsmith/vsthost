@@ -59,18 +59,6 @@ bool Plugin::IsEditorShown() const {
 	return is_editor_shown;
 }
 
-void Plugin::ShowEditor() {
-	is_editor_shown = true;
-	if (editor)
-		editor->Show(); 
-}
-
-void Plugin::HideEditor() {
-	is_editor_shown = false;
-	if (editor)
-		editor->Hide();
-}
-
 bool Plugin::SaveState() {
 	if (state)
 		return state->Save();

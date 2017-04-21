@@ -4,30 +4,30 @@
 
 #include "PluginVST2.h"
 #include "PluginVST3.h"
-#include "PluginVST3Window.h"
-#include "PluginVST2Window.h"
+#include "PluginWindow.h"
 #include "PluginManager.h"
 
 namespace VSTHost {
 const TCHAR* HostWindow::button_labels[Items::BUTTON_COUNT] = { 
 	TEXT("Add"), TEXT("Delete"), TEXT("Move Up"), TEXT("Move Down"), 
-	TEXT("Show Editor"), TEXT("Hide Editor"), TEXT("Save List") };
+	TEXT("Show Editor"), TEXT("Save List") };
 const TCHAR* HostWindow::kClassName = TEXT("HostWindow");
 const TCHAR* HostWindow::kCaption = TEXT("HostWindow");
 const int HostWindow::kWindowWidth = 150;
-const int HostWindow::kWindowHeight = 160;
+const int HostWindow::kWindowHeight = 120;
 const int HostWindow::kListWidth = 150;
-const int HostWindow::kListHeight = 250;
+const int HostWindow::kListHeight = 210;
 const int HostWindow::kButtonWidth = 120;
 const int HostWindow::kButtonHeight = 30;
 bool HostWindow::registered = false;
 
 HostWindow::HostWindow(IHostController* hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(hc) {
-	host_ctrl->RegisterObserver(this);
+	
 }
 
 HostWindow::~HostWindow() {
-	host_ctrl->UnregisterObserver(this);
+	if (observing)
+		host_ctrl->UnregisterObserver(this);
 	if (font)
 		::DeleteObject(font);
 	for (auto b : buttons)
@@ -35,7 +35,6 @@ HostWindow::~HostWindow() {
 			::DestroyWindow(b);
 	if (plugin_list)
 		::DestroyWindow(plugin_list);
-	// wnd freed through base class dtor
 }
 
 bool HostWindow::RegisterWC(const TCHAR* class_name) {
@@ -50,12 +49,40 @@ bool HostWindow::Initialize(HWND parent) {
 			rect.left, rect.top, rect.right, rect.bottom, parent, NULL, GetModuleHandle(NULL), reinterpret_cast<LPVOID>(this));
 		if (wnd) {
 			SetFont();
-			PopulatePluginList();
-			SelectPlugin(0);
+			// initialize open file dialog
+			ofn = std::make_unique<OPENFILENAMEA>(OPENFILENAMEA());
+			ofn->lStructSize = sizeof(*ofn);
+			ofn->hwndOwner = wnd;
+			ofn->lpstrFilter = "VST Plugins (*.dll, *.vst3)\0*.dll;*.vst3\0VST2 Plugins (*.dll)\0*.dll\0VST3 Plugins (*.vst3)\0*.vst3\0";
+			ofn->nMaxFile = MAX_PATH;
+			ofn->lpstrInitialDir = Host::kPluginDirectory;
+			ofn->Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+			host_ctrl->RegisterObserver(this);
+			observing = true;
+			OnInitialization();
 		}
 		return 0 != wnd;
 	}
 	else return false;
+}
+
+void HostWindow::OnInitialization() {
+	plugin_windows.clear();
+	PopulatePluginList();
+	if (host_ctrl->GetPluginCount()) {
+		for (std::uint32_t i = 0; i < host_ctrl->GetPluginCount(); ++i)
+			plugin_windows.emplace_back(new PluginWindow(host_ctrl, i));
+		Select(0);
+		SetButtons();
+	}
+}
+
+void HostWindow::PopulatePluginList() {
+	SendMessage(plugin_list, LB_RESETCONTENT, NULL, NULL);
+	for (std::uint32_t i = 0; i < host_ctrl->GetPluginCount(); ++i) {
+		auto pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl->GetPluginName(i).c_str());
+		SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)i);
+	}
 }
 
 void HostWindow::OnCreate(HWND hWnd) {
@@ -66,11 +93,10 @@ void HostWindow::OnCreate(HWND hWnd) {
 		(HMENU)(Items::BUTTON_COUNT - 1), (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 	for (Steinberg::int64 i = Items::Add; i < Items::BUTTON_COUNT - 1; ++i) {
 		buttons[i] = CreateWindow(TEXT("button"), button_labels[i], WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-			20 + kListWidth + 20, 20 + i * 40, kButtonWidth, kButtonHeight, hWnd, reinterpret_cast<HMENU>(i),
-			reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE)), NULL);
+			20 + kListWidth + 20, 20 + i * 40, kButtonWidth, kButtonHeight, hWnd, (HMENU)i,
+			(HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 	}
 }
-
 
 LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
@@ -80,65 +106,36 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
 				case Items::Add:
-					if (HIWORD(wParam) == BN_CLICKED)
-						OpenDialog();
+					if (HIWORD(wParam) == BN_CLICKED) {
+						char filename[MAX_PATH]{};
+						ofn->lpstrFile = filename;
+						if (::GetOpenFileNameA(ofn.get()))
+							host_ctrl->AddPlugin(std::string(filename));
+					}
 					break;
 				case Items::Delete:
-					if (HIWORD(wParam) == BN_CLICKED) {
-						const auto sel = GetPluginSelection();
-						const auto count = host_ctrl->GetPluginCount();
-						if (sel < count) {
-							host_ctrl->DeletePlugin(sel);
-							PopulatePluginList();
-							if (sel == count - 1)
-								SelectPlugin(sel - 1);
-							else
-								SelectPlugin(sel);
-						}
-					}
+					if (HIWORD(wParam) == BN_CLICKED)
+						host_ctrl->DeletePlugin(GetSelection());
 					break;
 				case Items::Up:
-					if (HIWORD(wParam) == BN_CLICKED) {
-						const auto sel = GetPluginSelection();
-						if (sel > 0 && sel < host_ctrl->GetPluginCount()) {
-							host_ctrl->MoveUp(sel);
-							PopulatePluginList();
-							SelectPlugin(sel - 1);
-						}
-					}
+					if (HIWORD(wParam) == BN_CLICKED)
+						host_ctrl->MoveUp(GetSelection());
 					break;
 				case Items::Down:
-					if (HIWORD(wParam) == BN_CLICKED) {
-						const auto sel = GetPluginSelection();
-						if (sel < host_ctrl->GetPluginCount() - 1) {
-							host_ctrl->MoveDown(sel);
-							PopulatePluginList();
-							SelectPlugin(sel + 1);
-						}
-					}
+					if (HIWORD(wParam) == BN_CLICKED)
+						host_ctrl->MoveDown(GetSelection());
 					break;
 				case Items::PluginList:
 					if (HIWORD(wParam) == LBN_SELCHANGE)
-						SelectPlugin(GetPluginSelection());
+						SetButtons();
 					break;
 				case Items::Show:
 					if (HIWORD(wParam) == BN_CLICKED) {
-						const auto sel = GetPluginSelection();
-						if (sel < host_ctrl->GetPluginCount() && host_ctrl->HasEditor(sel)) {
-							host_ctrl->ShowEditor(sel);
-							EnableWindow(buttons[Items::Show], false);
-							EnableWindow(buttons[Items::Hide], true);
-						}
-					}
-					break;
-				case Items::Hide:
-					if (HIWORD(wParam) == BN_CLICKED) {
-						auto sel = GetPluginSelection();
-						if (sel < host_ctrl->GetPluginCount() && host_ctrl->HasEditor(sel)) {
-							host_ctrl->HideEditor(sel);
-							EnableWindow(buttons[Items::Show], true);
-							EnableWindow(buttons[Items::Hide], false);
-						}
+						const auto selected = GetSelection();
+						if (plugin_windows[selected]->IsVisible())
+							plugin_windows[selected]->Hide();
+						else
+							plugin_windows[selected]->Show();
 					}
 					break;
 				case Items::Save:
@@ -160,16 +157,6 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	return 0;
 }
 
-void HostWindow::PopulatePluginList() {
-	if (plugin_list) {
-		SendMessage(plugin_list, LB_RESETCONTENT, NULL, NULL);
-		for (decltype(host_ctrl->GetPluginCount()) i = 0; i < host_ctrl->GetPluginCount(); ++i) {
-			int pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl->GetPluginName(i).c_str());
-			SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)i);
-		}
-	}
-}
-
 void HostWindow::SetFont() {
 	NONCLIENTMETRICS metrics;
 	metrics.cbSize = sizeof(NONCLIENTMETRICS);
@@ -181,107 +168,111 @@ void HostWindow::SetFont() {
 		SendMessage(buttons[i], WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 }
 
-void HostWindow::OpenDialog() {
-	char filename[MAX_PATH]{};
-	if (!ofn) {
-		ofn = std::make_unique<OPENFILENAMEA>(OPENFILENAMEA());
-		ofn->lStructSize = sizeof(*ofn);
-		ofn->hwndOwner = wnd;
-		ofn->lpstrFilter = "VST Plugins (*.dll, *.vst3)\0*.dll;*.vst3\0VST2 Plugins (*.dll)\0*.dll\0VST3 Plugins (*.vst3)\0*.vst3\0";
-		ofn->nMaxFile = sizeof(filename);
-		ofn->lpstrInitialDir = Host::kPluginDirectory;
-		ofn->Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	}
-	ofn->lpstrFile = filename;
-	if (::GetOpenFileNameA(ofn.get())) {
-		const auto count = host_ctrl->GetPluginCount();
-		if (host_ctrl->AddPlugin(std::string(filename))) {
-			host_ctrl->CreateEditor(host_ctrl->GetPluginCount() - 1, NULL);
-			PopulatePluginList();
-			SelectPlugin(count);
-		}
-	}
+void HostWindow::Select(std::uint32_t idx) {
+	SendMessage(plugin_list, LB_SETCURSEL, idx, 0);
+	SetFocus(plugin_list);
 }
 
-void HostWindow::SelectPlugin(std::uint32_t i) {
-	if (plugin_list) {
-		SendMessage(plugin_list, LB_SETCURSEL, i, 0);
-		SetFocus(plugin_list);
-		auto count = host_ctrl->GetPluginCount();
-		if (count >= 2) {
-			EnableWindow(buttons[Items::Up], i > 0);
-			EnableWindow(buttons[Items::Down], i < count - 1);
-		}
-		else {
-			EnableWindow(buttons[Items::Up], false);
-			EnableWindow(buttons[Items::Down], false);
-		}
-		if (count == 0) {
-			EnableWindow(buttons[Items::Show], false);
-			EnableWindow(buttons[Items::Hide], false);
-			EnableWindow(buttons[Items::Delete], false);
-		}
-		else {
-			EnableWindow(buttons[Items::Show], host_ctrl->HasEditor(i) && !host_ctrl->IsEditorShown(i));
-			EnableWindow(buttons[Items::Hide], host_ctrl->HasEditor(i) && host_ctrl->IsEditorShown(i));
-			EnableWindow(buttons[Items::Delete], true);
-		}
+void HostWindow::SetButtons() {
+	const auto count = host_ctrl->GetPluginCount(), selected = GetSelection();
+	::EnableWindow(buttons[Items::Up], count >= 2 && selected > 0);
+	::EnableWindow(buttons[Items::Down], count >= 2 && selected >= 0 && selected < count - 1);
+	::EnableWindow(buttons[Items::Delete], count > 0);
+	if (count > 0 && selected >= 0 && host_ctrl->HasEditor(selected))
+	{
+		::EnableWindow(buttons[Items::Show], true);
+		if (plugin_windows[selected]->IsVisible())
+			::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Hide Editor");
+		else
+			::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Show Editor");
+	}
+	else
+	{
+		::EnableWindow(buttons[Items::Show], false);
+		::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Show Editor");
 	}
 }
 
-std::uint32_t HostWindow::GetPluginSelection() {
-	if (plugin_list)
-		return static_cast<std::uint32_t>(SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL));
-	else 
-		return -1;
-}
-
-void HostWindow::CreateEditors() {
-	for (decltype(host_ctrl->GetPluginCount()) i = 0; i < host_ctrl->GetPluginCount(); ++i)
-		host_ctrl->CreateEditor(i, NULL);
+std::uint32_t HostWindow::GetSelection() {
+	return static_cast<std::uint32_t>(SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL));
 }
 
 void HostWindow::OnPluginAdded(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows.emplace_back(new PluginWindow(host_ctrl, idx));
+	auto pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl->GetPluginName(idx).c_str());
+	SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)idx);
+	Select(idx);
+	SetButtons();
 }
 
 void HostWindow::OnPluginDeleted(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	if (plugin_windows[idx]->IsVisible())
+		plugin_windows[idx]->Hide();
+	plugin_windows.erase(plugin_windows.begin() + idx);
+	PopulatePluginList();
+
+	const auto count = host_ctrl->GetPluginCount();
+	if (count > 0)
+	{
+		if (idx == count)
+			Select(idx - 1);
+		else
+			Select(idx);
+	}
+	else
+		SendMessage(plugin_list, LB_SETCURSEL, -1, 0);
+	SetButtons();
 }
 
 void HostWindow::OnListLoaded() {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	OnInitialization();
 }
 
 void HostWindow::OnMovedUp(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[idx]->MovedUp();
+	plugin_windows[idx - 1]->MovedDown();
+	using std::swap;
+	swap(plugin_windows[idx], plugin_windows[idx - 1]);
+	PopulatePluginList();
+
+	Select(idx - 1);
+	SetButtons();
 }
 
 void HostWindow::OnMovedDown(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[idx]->MovedDown();
+	plugin_windows[idx + 1]->MovedUp();
+	using std::swap;
+	swap(plugin_windows[idx], plugin_windows[idx + 1]);
+	PopulatePluginList();
+
+	Select(idx + 1);
+	SetButtons();
 }
 
 void HostWindow::OnEditorShown(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	if (idx == GetSelection())
+		::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Hide Editor");
 }
 
 void HostWindow::OnEditorHidden(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	if (idx == GetSelection())
+		::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Show Editor");
 }
 
 void HostWindow::OnPresetSet(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[plugin_idx]->PresetSet(preset_idx);
 }
 
 void HostWindow::OnBypassSet(std::uint32_t idx, bool bypass) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[idx]->BypassSet(bypass);
 }
 
 void HostWindow::OnActiveSet(std::uint32_t idx, bool active) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[idx]->ActiveSet(active);
 }
 
 void HostWindow::OnStateLoaded(std::uint32_t idx) {
-	MessageBoxA(NULL, __func__, NULL, NULL);
+	plugin_windows[idx]->StateLoaded();
 }
 } // namespace

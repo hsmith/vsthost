@@ -23,7 +23,7 @@ class Host::HostImpl : public HostSubject, public Steinberg::Vst::IHostApplicati
 	friend class HostController;
 public:
 	HostImpl(std::int64_t block_size, double sample_rate)
-		: block_size(block_size), sample_rate(sample_rate), plugins(block_size, sample_rate, UnknownCast()) {
+	: block_size(block_size), sample_rate(sample_rate), plugins(block_size, sample_rate, UnknownCast()) {
 		AllocateBuffers();
 	}
 
@@ -102,7 +102,6 @@ public:
 	void CreateGUI(IHostController* hc) {
 		gui.reset(new HostWindow(hc));
 		gui->Initialize(NULL);
-		gui->CreateEditors();
 		gui->Go();
 	}
 
@@ -224,14 +223,14 @@ private:
 
 	void ShowEditor(std::uint32_t idx) {
 		if (idx < plugins.Size()) {
-			plugins[idx].ShowEditor();
+			//plugins[idx].ShowEditor();
 			Notify(HostEvent::EditorShown, idx);
 		}
 	}
 
 	void HideEditor(std::uint32_t idx) {
 		if (idx < plugins.Size()) {
-			plugins[idx].HideEditor();
+			//plugins[idx].HideEditor();
 			Notify(HostEvent::EditorHidden, idx);
 		}
 	}

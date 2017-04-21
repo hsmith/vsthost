@@ -53,6 +53,10 @@ void Window::Refresh() {
 	InvalidateRect(wnd, NULL, false);
 }
 
+bool Window::IsVisible() {
+	return ::IsWindowVisible(wnd);
+}
+
 bool Window::RegisterWC(const TCHAR* class_name) {
 	WNDCLASSEX wc;
 	wc.cbSize = sizeof(WNDCLASSEX);

@@ -36,9 +36,6 @@
     <ClCompile Include="PresetVST2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginVST2Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PresetVST3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,9 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PluginVST3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PluginVST3Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PluginVST2.cpp">
@@ -122,16 +116,10 @@
     <ClInclude Include="PresetVST2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PluginVST2Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PluginVST2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PresetVST3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginVST3Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PluginVST3.h">

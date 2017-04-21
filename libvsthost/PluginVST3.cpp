@@ -17,7 +17,6 @@ DEF_CLASS_IID(Steinberg::Vst::IUnitInfo)
 DEF_CLASS_IID(Steinberg::IBStream)
 
 #include "ParameterChanges.h"
-#include "PluginVST3Window.h"
 #include "PresetVST3.h"
 
 extern "C" typedef bool (PLUGIN_API *VST3ExitProc)();
@@ -87,12 +86,11 @@ PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnkn
 
 PluginVST3::~PluginVST3() {
 	SetActive(false);
-	editor.reset();  // gui and state have to be destroyed before the rest of the plugin is freed
 	if (plugin_view) {
 		plugin_view->removed();
 		plugin_view->release();
 	}
-	state.reset();
+	state.reset(); // state has to be destroyed before the rest of the plugin is freed
 	if (connection_point_component && connection_point_controller) {
 		connection_point_component->disconnect(connection_point_controller);
 		connection_point_controller->disconnect(connection_point_component);
@@ -421,13 +419,7 @@ bool PluginVST3::HasEditor() const {
 
 void PluginVST3::CreateEditor(HWND hwnd) {
 	if (HasEditor() && !is_editor_created) {
-		if (hwnd != NULL) { // editor will be created in a third party window
-			plugin_view->attached(hwnd, Steinberg::kPlatformTypeHWND);
-		}
-		else { // editor will be created via PluginWindow class
-			editor = std::unique_ptr<PluginWindow>(new PluginVST3Window(*this, plugin_view));
-			editor->Initialize();
-		}
+		plugin_view->attached(hwnd, Steinberg::kPlatformTypeHWND);
 		is_editor_created = true;
 	}
 }

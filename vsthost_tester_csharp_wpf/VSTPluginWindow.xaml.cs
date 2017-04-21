@@ -96,7 +96,10 @@ namespace vsthost_tester_csharp_wpf
         public void StateLoaded()
         {
             if (lastPreset != null)
+            {
                 lastPreset.IsChecked = false;
+                lastPreset = null;
+            }
         }
 
         private void GeneratePresetMenu()

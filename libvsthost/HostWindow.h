@@ -13,8 +13,9 @@ class Plugin;
 class PluginWindow;
 class PluginManager;
 class HostWindow : public Window, public HostObserver {
+private:
 	enum Items {
-		Add = 0, Delete, Up, Down, Show, Hide, Save, BUTTON_COUNT, PluginList
+		Add = 0, Delete, Up, Down, Show, Save, BUTTON_COUNT, PluginList
 	};
 	static const TCHAR* button_labels[Items::BUTTON_COUNT];
 	static const TCHAR* kClassName;
@@ -22,21 +23,24 @@ class HostWindow : public Window, public HostObserver {
 	static const int kWindowWidth, kWindowHeight;
 	static const int kListWidth, kListHeight;
 	static const int kButtonWidth, kButtonHeight;
-	void OnCreate(HWND hWnd) override;
-	void SetFont();
-	std::uint32_t GetPluginSelection();
-public:
-	HostWindow(IHostController* hc);
-	//HostWindow(const HostWindow& hw) : Window(hw) {}
-	~HostWindow();
-	bool Initialize(HWND parent) override;
+	static bool registered;
+	HFONT font;
+	HWND plugin_list;
+	HWND buttons[Items::BUTTON_COUNT];
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 	bool RegisterWC(const TCHAR* class_name) override;
-	void CreateEditors();
-	void PopulatePluginList();
-	void SelectPlugin(std::uint32_t i);
-	void OpenDialog();
+	void OnCreate(HWND hWnd) override;
+public:
+	HostWindow(IHostController* hc);
+	~HostWindow();
+	bool Initialize(HWND parent) override;
 private:
+	void SetFont();
+	void OnInitialization();
+	void PopulatePluginList();
+	std::uint32_t GetSelection();
+	void Select(std::uint32_t idx);
+	void SetButtons();
 	void OnPluginAdded(std::uint32_t idx) override;
 	void OnPluginDeleted(std::uint32_t idx) override;
 	void OnListLoaded() override;
@@ -48,12 +52,11 @@ private:
 	void OnBypassSet(std::uint32_t idx, bool bypass) override;
 	void OnActiveSet(std::uint32_t idx, bool active) override;
 	void OnStateLoaded(std::uint32_t idx) override;
-	static bool registered;
-	HFONT font;
-	HWND plugin_list;
-	HWND buttons[Items::BUTTON_COUNT];
+
 	std::unique_ptr<OPENFILENAMEA> ofn;
-	std::unique_ptr<IHostController> host_ctrl;
+	std::shared_ptr<IHostController> host_ctrl;
+	std::vector<std::unique_ptr<PluginWindow>> plugin_windows;
+	bool observing{ false };
 };
 } // namespace
 

@@ -5,7 +5,6 @@
 #include "pluginterfaces\vst2.x\aeffectx.h"
 
 #include "PresetVST2.h"
-#include "PluginVST2Window.h"
 
 namespace VSTHost {
 PluginVST2::PluginVST2(HMODULE m, AEffect* p)
@@ -42,8 +41,7 @@ PluginVST2::PluginVST2(HMODULE m, AEffect* p)
 
 PluginVST2::~PluginVST2() {
 	SetActive(false);
-	editor.reset();	// gui and state have to be destroyed before the rest of the plugin is freed
-	state.reset();
+	state.reset(); // state has to be destroyed before the rest of the plugin is freed
 	Dispatcher(AEffectOpcodes::effClose);
 	// turns out offClose opcode handles freeing AEffect object and I musn't do that
 	plugin.release();
@@ -219,15 +217,8 @@ bool PluginVST2::HasEditor() const {
 
 void PluginVST2::CreateEditor(HWND hwnd) {
 	if (HasEditor() && !is_editor_created) {
-		if (hwnd != NULL) { // editor will be created in a third party window
-			this->hwnd = hwnd;
-			Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
-		}
-		else { // editor will be created via PluginWindow class
-			editor = std::unique_ptr<PluginWindow>(new PluginVST2Window(*this));
-			editor->Initialize();
-			this->hwnd = editor->GetHWND();
-		}
+		this->hwnd = hwnd;
+		Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
 		is_editor_created = true;
 	}
 }
@@ -248,20 +239,6 @@ Steinberg::uint32 PluginVST2::GetEditorWidth() {
 		return erect->right - erect->left;
 	else
 		return 0;
-}
-
-void PluginVST2::ShowEditor() {
-	if (is_editor_created) {
-		Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
-		Plugin::ShowEditor();
-	}
-}
-
-void PluginVST2::HideEditor() {
-	if (is_editor_created) {
-		Dispatcher(AEffectOpcodes::effEditClose, 0, 0, hwnd);
-		Plugin::HideEditor();
-	}
 }
 
 VstIntPtr VSTCALLBACK PluginVST2::HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt) {
@@ -370,9 +347,7 @@ VstIntPtr VSTCALLBACK PluginVST2::HostCallback(AEffect *effect, VstInt32 opcode,
 			return 1;
 		}
 		case AudioMasterOpcodesX::audioMasterUpdateDisplay:
-			if (editor)
-				editor->Refresh();
-			return 1;
+			return 0;
 		case AudioMasterOpcodesX::audioMasterBeginEdit:
 			//index
 			return 1;

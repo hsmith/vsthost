@@ -57,8 +57,6 @@ public:
 	virtual void CreateEditor(HWND hwnd = NULL) = 0;
 	virtual Steinberg::uint32 GetEditorHeight() = 0;
 	virtual Steinberg::uint32 GetEditorWidth() = 0;
-	virtual void ShowEditor();
-	virtual void HideEditor();
 	bool IsEditorShown() const;
 	// state
 	bool SaveState();
@@ -83,7 +81,6 @@ protected:
 	std::unique_ptr<Preset> state;
 	bool is_editor_created{ false };
 	bool is_editor_shown{ false };
-	std::unique_ptr<PluginWindow> editor;
 };
 } // namespace
 

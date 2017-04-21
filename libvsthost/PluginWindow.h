@@ -1,36 +1,43 @@
 #ifndef PLUGINWINDOW_H
 #define PLUGINWINDOW_H
 
+#include <memory>
+
 #include "Window.h"
+#include "Host.h"
 
 namespace VSTHost {
 class Plugin;
+class HostWindow;
 class PluginWindow : public Window {
-public:
-	PluginWindow(int width, int height, Plugin& p);
-	virtual ~PluginWindow();
-	virtual bool Initialize(HWND parent = NULL) = 0;
-	virtual void SetRect() = 0;
-	bool IsActive() const;
-	HWND GetHWND() const;
-protected:
+	friend class HostWindow;
+private:
 	enum MenuItem {
 		Bypass = 10000, Active, Close, 
 		State, Load, Save, 
 		Presets, Preset = 20000
 	};
-	void ApplyOffset();
-	virtual HMENU CreateMenu() const = 0;
-	HMENU menu;
 	static const TCHAR* kClassName;
+	static bool registered;
+	HMENU menu;
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 	bool RegisterWC(const TCHAR* class_name) override;
-	static bool registered;
-	static int static_offset;
-	int offset;
-	int size_x{ 0 }, size_y{ 0 };
-	bool is_active{ false };
-	Plugin& plugin;
+public:
+	PluginWindow(std::shared_ptr<IHostController> hc, std::uint32_t idx);
+	~PluginWindow();
+	bool Initialize(HWND parent = NULL) override;
+	void Show() override;
+	void Hide() override;
+private:
+	void MovedUp();
+	void MovedDown();
+	void PresetSet(std::uint32_t idx);
+	void BypassSet(bool bypass);
+	void ActiveSet(bool active);
+	void StateLoaded();
+	HMENU CreateMenu();
+	std::uint32_t index;
+	std::shared_ptr<IHostController> host_ctrl;
 };
 } // namespace
 
