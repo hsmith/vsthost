@@ -46,12 +46,46 @@ LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 				case MenuItem::Close:
 					Hide();
 					break;
-				case MenuItem::Load:
-					host_ctrl->LoadPreset(index);
-					break;
 				case MenuItem::Save:
 					host_ctrl->SavePreset(index);
 					break;
+				case MenuItem::Load:
+					host_ctrl->LoadPreset(index);
+					break;
+				case MenuItem::SaveAs: {
+					char filename[MAX_PATH]{};
+					OPENFILENAMEA ofn{};
+					ofn.lpstrFile = filename;
+					ofn.lStructSize = sizeof(ofn);
+					ofn.hwndOwner = wnd;
+					ofn.nMaxFile = MAX_PATH;
+					ofn.lpstrInitialDir = Host::kPluginDirectory;
+					ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+					auto ext = host_ctrl->GetPluginPresetExtension(index);
+					bool vst2 = ext.compare("fxp") == 0;
+					ofn.lpstrFilter = vst2 ? "VST2 Preset file (*.fxp)\0*.fxp\0All files (*.*)\0*.*" :
+						"VST3 Preset file (*.vstpreset)\0*.vstpreset\0All files (*.*)\0*.*";
+					ofn.lpstrDefExt = ext.c_str();
+					if (::GetSaveFileNameA(&ofn))
+						host_ctrl->SavePreset(index, filename);
+					break;
+				}
+				case MenuItem::LoadFrom: {
+					char filename[MAX_PATH]{};
+					OPENFILENAMEA ofn{};
+					ofn.lpstrFile = filename;
+					ofn.lStructSize = sizeof(ofn);
+					ofn.hwndOwner = wnd;
+					ofn.nMaxFile = MAX_PATH;
+					ofn.lpstrInitialDir = Host::kPluginDirectory;
+					ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+					bool vst2 = host_ctrl->GetPluginPresetExtension(index).compare("fxp") == 0;
+					ofn.lpstrFilter = vst2 ? "VST2 Preset file (*.fxp)\0*.fxp\0All files (*.*)\0*.*" :
+						"VST3 Preset file (*.vstpreset)\0*.vstpreset\0All files (*.*)\0*.*";
+					if (::GetOpenFileNameA(&ofn))
+						host_ctrl->LoadPreset(index, filename);
+					break;
+				}
 				default:
 					break;
 			}
@@ -166,6 +200,8 @@ HMENU PluginWindow::CreateMenu() {
 	HMENU hstate = ::CreateMenu();
 	::AppendMenu(hstate, MF_STRING, MenuItem::Save, TEXT("Save"));
 	::AppendMenu(hstate, MF_STRING, MenuItem::Load, TEXT("Load"));
+	::AppendMenu(hstate, MF_STRING, MenuItem::SaveAs, TEXT("Save As..."));
+	::AppendMenu(hstate, MF_STRING, MenuItem::LoadFrom, TEXT("Load From..."));
 	::AppendMenu(hmenu, MF_POPUP, (UINT_PTR)hstate, TEXT("State"));
 	// preset submenu
 	HMENU hpresets = ::CreateMenu();

@@ -14,7 +14,7 @@ class PluginWindow : public Window {
 private:
 	enum MenuItem {
 		Bypass = 10000, Active, Close, 
-		State, Load, Save, 
+		State, Save, Load, SaveAs, LoadFrom, 
 		Presets, Preset = 20000
 	};
 	static const TCHAR* kClassName;
