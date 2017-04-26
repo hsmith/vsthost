@@ -92,6 +92,7 @@
       <PreprocessorDefinitions>_WIN32;_MBCS;UNICODE_OFF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessToFile>false</PreprocessToFile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -107,6 +108,7 @@
       <PreprocessorDefinitions>_WIN32;_WIN64;_MBCS;UNICODE_OFF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessToFile>false</PreprocessToFile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

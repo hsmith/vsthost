@@ -103,6 +103,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\libvsthost.lib</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -116,6 +117,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)output\$(PlatformTarget)\$(Configuration)\libvsthost.lib</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
