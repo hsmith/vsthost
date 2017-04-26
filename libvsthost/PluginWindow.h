@@ -40,7 +40,7 @@ private:
 	std::uint32_t index;
 	std::shared_ptr<IHostController> host_ctrl;
 	bool size_fixed{ false };
-	std::size_t size_x{ 200 }, size_y{ 300 };
+	std::uint32_t last_checked;
 };
 } // namespace
 

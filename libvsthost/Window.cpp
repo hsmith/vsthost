@@ -11,7 +11,7 @@ Window::Window(int width, int height) : wnd(NULL) {
 	rect.top = offset_y;
 	rect.bottom = rect.top + height;
 
-	offset = (offset += 50) % 600;
+	offset = (offset += 53) % 613;
 }
 
 Window::~Window() {
