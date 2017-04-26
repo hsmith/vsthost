@@ -30,7 +30,6 @@ namespace VSTHost {
 		UInt32 GetPluginEditorWidth(UInt32 idx);
 		void ShowEditor(UInt32 idx);
 		void HideEditor(UInt32 idx);
-		bool IsEditorShown(UInt32 idx);
 		bool IsBypassed(UInt32 idx);
 		void SetBypass(UInt32 idx, bool bypass);
 		bool IsActive(UInt32 idx);

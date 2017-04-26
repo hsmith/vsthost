@@ -87,10 +87,6 @@ namespace VSTHost {
 		return hc->HideEditor(idx);
 	}
 
-	bool HostControllerProxy::IsEditorShown(UInt32 idx) {
-		return hc->IsEditorShown(idx);
-	}
-
 	bool HostControllerProxy::IsBypassed(UInt32 idx) {
 		return hc->IsBypassed(idx);
 	}

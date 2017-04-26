@@ -28,8 +28,10 @@ LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 			Hide();
 			break;
 		case WM_COMMAND:
-			if (LOWORD(wParam) >= MenuItem::Preset && LOWORD(wParam) - MenuItem::Preset < host_ctrl->GetPluginPresetCount(index)) {
-				host_ctrl->SetPluginPreset(index, LOWORD(wParam) - MenuItem::Preset);
+			if (LOWORD(wParam) >= MenuItem::Preset) {
+				auto preset = static_cast<std::uint32_t>(LOWORD(wParam) - MenuItem::Preset);
+				if (preset < host_ctrl->GetPluginPresetCount(index))
+					host_ctrl->SetPluginPreset(index, preset);
 				break;
 			}
 			switch (LOWORD(wParam)) {
