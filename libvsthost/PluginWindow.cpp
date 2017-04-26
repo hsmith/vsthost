@@ -60,11 +60,11 @@ LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 					ofn.hwndOwner = wnd;
 					ofn.nMaxFile = MAX_PATH;
 					ofn.lpstrInitialDir = Host::kPluginDirectory;
-					ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+					ofn.Flags = OFN_NOCHANGEDIR;
 					auto ext = host_ctrl->GetPluginPresetExtension(index);
 					bool vst2 = ext.compare("fxp") == 0;
-					ofn.lpstrFilter = vst2 ? "VST2 Preset file (*.fxp)\0*.fxp\0All files (*.*)\0*.*" :
-						"VST3 Preset file (*.vstpreset)\0*.vstpreset\0All files (*.*)\0*.*";
+					ofn.lpstrFilter = vst2 ? "VST2 Preset file (*.fxp)\0*.fxp" :
+						"VST3 Preset file (*.vstpreset)\0*.vstpreset";
 					ofn.lpstrDefExt = ext.c_str();
 					if (::GetSaveFileNameA(&ofn))
 						host_ctrl->SavePreset(index, filename);
