@@ -7,7 +7,7 @@
     <ProjectGuid>{925542AB-79F3-4B65-B432-1E415D62C512}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>vsthost_tester_csharp</RootNamespace>
+    <RootNamespace>vsthost_tester_csharp_wpf</RootNamespace>
     <AssemblyName>vsthost_tester_csharp</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

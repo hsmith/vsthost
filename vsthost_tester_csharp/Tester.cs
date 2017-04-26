@@ -30,7 +30,7 @@ namespace vsthost_tester_csharp
         public void Initialize()
         {
             // load wav from file to clean wav stream
-            FileStream wav_file = new FileStream("D:/Amen-break.wav", FileMode.Open);
+            FileStream wav_file = new FileStream("./../../../feed/Amen-break.wav", FileMode.Open);
             wav_file.CopyTo(wav_clean);
             wav_file.Close();
 
