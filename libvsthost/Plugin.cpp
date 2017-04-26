@@ -55,8 +55,8 @@ bool Plugin::IsBypassed() const {
 	return bypass;
 }
 
-bool Plugin::IsEditorShown() const {
-	return is_editor_shown;
+bool Plugin::HasEditor() const {
+	return has_editor;
 }
 
 bool Plugin::SaveState() {

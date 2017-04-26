@@ -4,9 +4,6 @@
 #undef max
 #include <limits>
 
-#ifndef UNICODE
-#define UNICODE_OFF
-#endif
 #include "pluginterfaces/vst/ivsteditcontroller.h"
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "pluginterfaces/vst/ivstmessage.h"
@@ -56,6 +53,8 @@ public:
 	void CreateEditor(HWND hwnd) override;
 	Steinberg::uint32 GetEditorHeight() override;
 	Steinberg::uint32 GetEditorWidth() override;
+	void ShowEditor() override;
+	void HideEditor() override;
 	// vst3 interfaces specific
 	Steinberg::tresult PLUGIN_API beginEdit(Steinberg::Vst::ParamID id) override;
 	Steinberg::tresult PLUGIN_API performEdit(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamValue valueNormalized) override;
@@ -85,8 +84,6 @@ private:
 	Steinberg::int32 current_param_idx, offset;
 	ParameterValueQueue* current_queue;
 	std::mutex queue_lock;
-	// has editor flag for optimization
-	bool has_editor{ false };
 	Steinberg::IPlugView* plugin_view{ nullptr };
 	// vst3 general
 	Steinberg::int32 class_index; // index of the class produced by factory which is valid 

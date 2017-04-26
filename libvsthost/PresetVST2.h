@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "pluginterfaces\base\fplatform.h"
 #include "pluginterfaces\vst2.x\aeffectx.h"
 #include "pluginterfaces\vst2.x\vstfxstore.h"
 

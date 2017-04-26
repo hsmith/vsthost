@@ -7,9 +7,6 @@
 #include <string>
 #include <mutex>
 
-#ifndef UNICODE
-#define UNICODE_OFF
-#endif
 #include "pluginterfaces/vst/vsttypes.h"
 
 namespace VSTHost {
@@ -53,11 +50,12 @@ public:
 	virtual void SetBypass(bool bypass_) = 0;
 	virtual bool BypassProcess() const = 0;
 	// editor
-	virtual bool HasEditor() const = 0;
+	virtual bool HasEditor() const;
 	virtual void CreateEditor(HWND hwnd = NULL) = 0;
 	virtual Steinberg::uint32 GetEditorHeight() = 0;
 	virtual Steinberg::uint32 GetEditorWidth() = 0;
-	bool IsEditorShown() const;
+	virtual void ShowEditor() = 0;
+	virtual void HideEditor() = 0;
 	// state
 	bool SaveState();
 	bool LoadState();
@@ -79,8 +77,7 @@ protected:
 	Steinberg::Vst::TSamples block_size;
 	Steinberg::Vst::SampleRate sample_rate;
 	std::unique_ptr<Preset> state;
-	bool is_editor_created{ false };
-	bool is_editor_shown{ false };
+	bool has_editor{ false };
 };
 } // namespace
 

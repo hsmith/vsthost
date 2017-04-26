@@ -20,6 +20,7 @@ private:
 	static const TCHAR* kClassName;
 	static bool registered;
 	HMENU menu;
+	HMENU CreateMenu();
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 	bool RegisterWC(const TCHAR* class_name) override;
 public:
@@ -29,15 +30,17 @@ public:
 	void Show() override;
 	void Hide() override;
 private:
+	void FixSize();
 	void MovedUp();
 	void MovedDown();
 	void PresetSet(std::uint32_t idx);
 	void BypassSet(bool bypass);
 	void ActiveSet(bool active);
 	void StateLoaded();
-	HMENU CreateMenu();
 	std::uint32_t index;
 	std::shared_ptr<IHostController> host_ctrl;
+	bool size_fixed{ false };
+	std::size_t size_x{ 200 }, size_y{ 300 };
 };
 } // namespace
 

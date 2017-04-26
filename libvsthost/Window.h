@@ -20,6 +20,7 @@ protected:
 	virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 	virtual bool RegisterWC(const TCHAR* class_name);
 	RECT rect;
+	static size_t offset;
 	HWND wnd;
 };
 } // namespace

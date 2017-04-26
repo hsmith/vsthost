@@ -5,6 +5,7 @@
 #define VST_FORCE_DEPRECATED 0
 #endif
 
+#include "pluginterfaces\base\fplatform.h"
 #include "pluginterfaces\vst2.x\aeffect.h"
 
 #include "Plugin.h"
@@ -44,6 +45,8 @@ public:
 	void CreateEditor(HWND hwnd) override;
 	Steinberg::uint32 GetEditorHeight() override;
 	Steinberg::uint32 GetEditorWidth() override;
+	void ShowEditor() override;
+	void HideEditor() override;
 	// vst2 callback procedure wrapper
 	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 private:

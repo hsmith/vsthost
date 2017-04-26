@@ -418,30 +418,37 @@ bool PluginVST3::HasEditor() const {
 }
 
 void PluginVST3::CreateEditor(HWND hwnd) {
-	if (HasEditor() && !is_editor_created) {
+	if (HasEditor())
 		plugin_view->attached(hwnd, Steinberg::kPlatformTypeHWND);
-		is_editor_created = true;
-	}
 }
 
 Steinberg::uint32 PluginVST3::GetEditorHeight() {
-	if (plugin_view) {
+	if (HasEditor()) {
 		Steinberg::ViewRect vr;
 		plugin_view->getSize(&vr);
 		return vr.getHeight();
 	}
-	else
-		return 0;
+	return 0;
 }
 
 Steinberg::uint32 PluginVST3::GetEditorWidth() {
-	if (plugin_view) {
+	if (HasEditor()) {
 		Steinberg::ViewRect vr;
 		plugin_view->getSize(&vr);
 		return vr.getWidth();
 	}
-	else
-		return 0;
+	return 0;
+}
+
+
+void PluginVST3::ShowEditor() {
+	if (HasEditor())
+		plugin_view->onFocus(true);
+}
+
+void PluginVST3::HideEditor() {
+	if (HasEditor())
+		plugin_view->onFocus(false);
 }
 
 Steinberg::tresult PLUGIN_API PluginVST3::beginEdit(Steinberg::Vst::ParamID id) {

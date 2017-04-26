@@ -45,7 +45,7 @@ bool HostWindow::RegisterWC(const TCHAR* class_name) {
 
 bool HostWindow::Initialize(HWND parent) {
 	if (RegisterWC(kClassName)) {
-		wnd = CreateWindow(kClassName, kCaption, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+		wnd = ::CreateWindow(kClassName, kCaption, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			rect.left, rect.top, rect.right, rect.bottom, parent, NULL, GetModuleHandle(NULL), reinterpret_cast<LPVOID>(this));
 		if (wnd) {
 			SetFont();
@@ -70,31 +70,33 @@ void HostWindow::OnInitialization() {
 	plugin_windows.clear();
 	PopulatePluginList();
 	if (host_ctrl->GetPluginCount()) {
-		for (std::uint32_t i = 0; i < host_ctrl->GetPluginCount(); ++i)
+		for (std::uint32_t i = 0; i < host_ctrl->GetPluginCount(); ++i) {
 			plugin_windows.emplace_back(new PluginWindow(host_ctrl, i));
+			plugin_windows[i]->Initialize();
+		}
 		Select(0);
 		SetButtons();
 	}
 }
 
 void HostWindow::PopulatePluginList() {
-	SendMessage(plugin_list, LB_RESETCONTENT, NULL, NULL);
+	::SendMessage(plugin_list, LB_RESETCONTENT, NULL, NULL);
 	for (std::uint32_t i = 0; i < host_ctrl->GetPluginCount(); ++i) {
 		auto pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl->GetPluginName(i).c_str());
-		SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)i);
+		::SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)i);
 	}
 }
 
 void HostWindow::OnCreate(HWND hWnd) {
-	plugin_list = CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | LBS_NOTIFY,
-		20, 20, kListWidth, kListHeight, hWnd, (HMENU)Items::PluginList, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-	buttons[Items::BUTTON_COUNT - 1] = CreateWindow(TEXT("button"), button_labels[Items::BUTTON_COUNT - 1], WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		20, 25 + kListHeight, kButtonWidth + 20 + kListWidth, kButtonHeight, hWnd, 
-		(HMENU)(Items::BUTTON_COUNT - 1), (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+	plugin_list = ::CreateWindow(TEXT("listbox"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | LBS_NOTIFY,
+		20, 20, kListWidth, kListHeight, hWnd, (HMENU)Items::PluginList, (HINSTANCE)::GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+	buttons[Items::BUTTON_COUNT - 1] = ::CreateWindow(TEXT("button"), button_labels[Items::BUTTON_COUNT - 1], 
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 20, 25 + kListHeight, kButtonWidth + 20 + kListWidth, kButtonHeight, hWnd, 
+		(HMENU)(Items::BUTTON_COUNT - 1), (HINSTANCE)::GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 	for (Steinberg::int64 i = Items::Add; i < Items::BUTTON_COUNT - 1; ++i) {
-		buttons[i] = CreateWindow(TEXT("button"), button_labels[i], WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		buttons[i] = ::CreateWindow(TEXT("button"), button_labels[i], WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 			20 + kListWidth + 20, 20 + i * 40, kButtonWidth, kButtonHeight, hWnd, (HMENU)i,
-			(HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+			(HINSTANCE)::GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 	}
 }
 
@@ -152,7 +154,7 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			PostQuitMessage(0);
 			break;
 		default:
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 	return 0;
 }
@@ -160,16 +162,16 @@ LRESULT CALLBACK HostWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 void HostWindow::SetFont() {
 	NONCLIENTMETRICS metrics;
 	metrics.cbSize = sizeof(NONCLIENTMETRICS);
-	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
-	font = CreateFontIndirect(&metrics.lfMessageFont);
-	SendMessage(wnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-	SendMessage(plugin_list, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
+	font = ::CreateFontIndirect(&metrics.lfMessageFont);
+	::SendMessage(wnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	::SendMessage(plugin_list, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	for (int i = Items::Add; i < Items::BUTTON_COUNT; ++i)
-		SendMessage(buttons[i], WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+		::SendMessage(buttons[i], WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 }
 
 void HostWindow::Select(std::uint32_t idx) {
-	SendMessage(plugin_list, LB_SETCURSEL, idx, 0);
+	::SendMessage(plugin_list, LB_SETCURSEL, idx, 0);
 	SetFocus(plugin_list);
 }
 
@@ -178,29 +180,28 @@ void HostWindow::SetButtons() {
 	::EnableWindow(buttons[Items::Up], count >= 2 && selected > 0);
 	::EnableWindow(buttons[Items::Down], count >= 2 && selected >= 0 && selected < count - 1);
 	::EnableWindow(buttons[Items::Delete], count > 0);
-	if (count > 0 && selected >= 0 && host_ctrl->HasEditor(selected))
-	{
+	if (count > 0 && selected >= 0 && host_ctrl->HasEditor(selected)) {
 		::EnableWindow(buttons[Items::Show], true);
 		if (plugin_windows[selected]->IsVisible())
 			::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Hide Editor");
 		else
 			::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Show Editor");
 	}
-	else
-	{
+	else {
 		::EnableWindow(buttons[Items::Show], false);
 		::SendMessageA(buttons[Items::Show], WM_SETTEXT, NULL, (LPARAM)"Show Editor");
 	}
 }
 
 std::uint32_t HostWindow::GetSelection() {
-	return static_cast<std::uint32_t>(SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL));
+	return static_cast<std::uint32_t>(::SendMessage(plugin_list, LB_GETCURSEL, NULL, NULL));
 }
 
 void HostWindow::OnPluginAdded(std::uint32_t idx) {
 	plugin_windows.emplace_back(new PluginWindow(host_ctrl, idx));
+	plugin_windows.back()->Initialize();
 	auto pos = SendMessageA(plugin_list, LB_ADDSTRING, 0, (LPARAM)host_ctrl->GetPluginName(idx).c_str());
-	SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)idx);
+	::SendMessage(plugin_list, LB_SETITEMDATA, pos, (LPARAM)idx);
 	Select(idx);
 	SetButtons();
 }
@@ -212,15 +213,14 @@ void HostWindow::OnPluginDeleted(std::uint32_t idx) {
 	PopulatePluginList();
 
 	const auto count = host_ctrl->GetPluginCount();
-	if (count > 0)
-	{
+	if (count > 0) {
 		if (idx == count)
 			Select(idx - 1);
 		else
 			Select(idx);
 	}
 	else
-		SendMessage(plugin_list, LB_SETCURSEL, -1, 0);
+		::SendMessage(plugin_list, LB_SETCURSEL, -1, 0);
 	SetButtons();
 }
 

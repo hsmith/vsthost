@@ -54,7 +54,6 @@ public:
 	virtual std::uint32_t GetPluginEditorWidth(std::uint32_t idx) = 0;
 	virtual void ShowEditor(std::uint32_t idx) = 0;
 	virtual void HideEditor(std::uint32_t idx) = 0;
-	virtual bool IsEditorShown(std::uint32_t idx) const = 0;
 	virtual bool IsBypassed(std::uint32_t idx) const = 0;
 	virtual void SetBypass(std::uint32_t idx, bool bypass) = 0;
 	virtual bool IsActive(std::uint32_t idx) const = 0;

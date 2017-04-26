@@ -6,9 +6,6 @@
 #include <thread>
 #include <array>
 
-#ifndef UNICODE
-#define UNICODE_OFF
-#endif
 #include "base/source/fstring.h"
 #include "pluginterfaces/vst/ivsthostapplication.h"
 DEF_CLASS_IID(Steinberg::Vst::IHostApplication)
@@ -223,22 +220,16 @@ private:
 
 	void ShowEditor(std::uint32_t idx) {
 		if (idx < plugins.Size()) {
-			//plugins[idx].ShowEditor();
+			plugins[idx].ShowEditor();
 			Notify(HostEvent::EditorShown, idx);
 		}
 	}
 
 	void HideEditor(std::uint32_t idx) {
 		if (idx < plugins.Size()) {
-			//plugins[idx].HideEditor();
+			plugins[idx].HideEditor();
 			Notify(HostEvent::EditorHidden, idx);
 		}
-	}
-
-	bool IsEditorShown(std::uint32_t idx) const {
-		if (idx < plugins.Size())
-			return plugins[idx].IsEditorShown();
-		return false;
 	}
 
 	bool IsBypassed(std::uint32_t idx) const {
@@ -442,7 +433,6 @@ public:
 	std::uint32_t GetPluginEditorWidth(std::uint32_t idx) override;
 	void ShowEditor(std::uint32_t idx) override;
 	void HideEditor(std::uint32_t idx) override;
-	bool IsEditorShown(std::uint32_t idx) const override;
 	bool IsBypassed(std::uint32_t idx) const override;
 	void SetBypass(std::uint32_t idx, bool bypass) override;
 	bool IsActive(std::uint32_t idx) const override;
@@ -530,10 +520,6 @@ void HostController::ShowEditor(std::uint32_t idx) {
 
 void HostController::HideEditor(std::uint32_t idx) {
 	return host->HideEditor(idx);
-}
-
-bool HostController::IsEditorShown(std::uint32_t idx) const {
-	return host->IsEditorShown(idx);
 }
 
 bool HostController::IsBypassed(std::uint32_t idx) const {

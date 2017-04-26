@@ -16,8 +16,6 @@ PluginWindow::~PluginWindow() {
 		DestroyMenu(menu);
 }
 
-
-
 bool PluginWindow::RegisterWC(const TCHAR* class_name) {
 	if (!registered)
 		registered = Window::RegisterWC(class_name);
@@ -73,23 +71,66 @@ LRESULT CALLBACK PluginWindow::WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 }
 
 bool PluginWindow::Initialize(HWND parent) {
-	return false;
+	if (RegisterWC(kClassName)) {
+		menu = CreateMenu();
+		wnd = ::CreateWindowA(kClassName, host_ctrl->GetPluginName(index).c_str(), 
+			WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, rect.left, rect.top, rect.right, rect.bottom,
+			parent, menu, ::GetModuleHandle(NULL), static_cast<LPVOID>(this));
+		if (wnd && host_ctrl->HasEditor(index)) {
+			host_ctrl->CreateEditor(index, wnd);
+			FixSize();
+		}
+		return wnd != NULL;
+	}
+	else
+		return false;
 }
 
 void PluginWindow::Show() {
-
+	if (wnd && host_ctrl->HasEditor(index)) {
+		host_ctrl->ShowEditor(index);
+		if (!size_fixed) {
+			FixSize();
+			size_fixed = true;
+		}
+		Window::Show();
+	}
 }
 
 void PluginWindow::Hide() {
+	if (wnd && host_ctrl->HasEditor(index)) {
+		host_ctrl->HideEditor(index);
+		Window::Hide();
+	}
+}
 
+void PluginWindow::FixSize() {
+	const auto w = host_ctrl->GetPluginEditorWidth(index), h = host_ctrl->GetPluginEditorHeight(index);
+	RECT client_rect{};
+	::GetClientRect(wnd, &client_rect);
+	if (client_rect.right - client_rect.left != w || client_rect.bottom - client_rect.top != h) {
+		client_rect.right = client_rect.left + w;
+		client_rect.bottom = client_rect.top + h;
+		::AdjustWindowRect(&client_rect, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, false);
+		client_rect.bottom += ::GetSystemMetrics(SM_CYMENU);
+		if (client_rect.left < 0) {
+			client_rect.right -= client_rect.left;
+			client_rect.left -= client_rect.left;
+		}
+		if (client_rect.top < 0) {
+			client_rect.bottom -= client_rect.top;
+			client_rect.top -= client_rect.top;
+		}
+		::SetWindowPos(wnd, NULL, rect.left, rect.top, rect.right, rect.bottom, NULL);
+	}
 }
 
 void PluginWindow::MovedUp() {
-
+	index--;
 }
 
 void PluginWindow::MovedDown() {
-
+	index++;
 }
 
 void PluginWindow::PresetSet(std::uint32_t idx) {

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <windows.h>
-//#include "Shlwapi.h"
 
 #include "Plugin.h"
 #include "PluginLoader.h"

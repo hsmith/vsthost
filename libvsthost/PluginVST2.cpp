@@ -75,6 +75,7 @@ void PluginVST2::Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleR
 	Dispatcher(AEffectOpcodes::effSetBlockSize, 0, static_cast<VstIntPtr>(block_size));
 	state = std::unique_ptr<Preset>(new PresetVST2(*this));
 	soft_bypass = CanDo("bypass");
+	has_editor = static_cast<bool>(plugin->flags & effFlagsHasEditor);
 	SetActive(true);
 }
 
@@ -216,29 +217,37 @@ bool PluginVST2::HasEditor() const {
 }
 
 void PluginVST2::CreateEditor(HWND hwnd) {
-	if (HasEditor() && !is_editor_created) {
-		this->hwnd = hwnd;
-		Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
-		is_editor_created = true;
-	}
+	this->hwnd = hwnd;
 }
 
 Steinberg::uint32 PluginVST2::GetEditorHeight() {
-	ERect* erect = nullptr;
-	Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
-	if (erect)
-		return erect->bottom - erect->top;
-	else
-		return 0;
+	if (HasEditor()) {
+		ERect* erect = nullptr;
+		Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
+		if (erect)
+			return erect->bottom - erect->top;
+	}
+	return 0;
 }
 
 Steinberg::uint32 PluginVST2::GetEditorWidth() {
-	ERect* erect = nullptr;
-	Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
-	if (erect)
-		return erect->right - erect->left;
-	else
-		return 0;
+	if (HasEditor()) {
+		ERect* erect = nullptr;
+		Dispatcher(AEffectOpcodes::effEditGetRect, 0, 0, &erect);
+		if (erect)
+			return erect->right - erect->left;
+	}
+	return 0;
+}
+
+void PluginVST2::ShowEditor() {
+	if (HasEditor())
+		Dispatcher(AEffectOpcodes::effEditOpen, 0, 0, hwnd);
+}
+
+void PluginVST2::HideEditor() {
+	if (HasEditor())
+		Dispatcher(AEffectOpcodes::effEditClose, 0, 0, hwnd);
 }
 
 VstIntPtr VSTCALLBACK PluginVST2::HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt) {

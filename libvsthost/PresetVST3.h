@@ -4,9 +4,6 @@
 #include <string>
 #include <Windows.h>
 
-#ifndef UNICODE
-#define UNICODE_OFF
-#endif
 #include "public.sdk/source/common/memorystream.h"
 
 #include "Preset.h"

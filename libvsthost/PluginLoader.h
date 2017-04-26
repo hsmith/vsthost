@@ -4,9 +4,6 @@
 #include <string>
 #include <memory>
 
-#ifndef UNICODE
-#define UNICODE_OFF
-#endif
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/base/funknown.h"
 

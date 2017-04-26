@@ -1,13 +1,17 @@
 #include "Window.h"
 
 namespace VSTHost {
+size_t Window::offset = 200;
+
 Window::Window(int width, int height) : wnd(NULL) {
-	int offset_x = 200;
-	int offset_y = offset_x;
+	auto offset_x = static_cast<LONG>(offset);
+	auto offset_y = offset_x;
 	rect.left = offset_x;
 	rect.right = rect.left + width;
 	rect.top = offset_y;
 	rect.bottom = rect.top + height;
+
+	offset = (offset += 50) % 600;
 }
 
 Window::~Window() {
@@ -54,7 +58,7 @@ void Window::Refresh() {
 }
 
 bool Window::IsVisible() {
-	return ::IsWindowVisible(wnd);
+	return ::IsWindowVisible(wnd) != 0;
 }
 
 bool Window::RegisterWC(const TCHAR* class_name) {
