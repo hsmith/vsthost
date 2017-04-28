@@ -41,7 +41,6 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 	program->byteSize = static_cast<VstInt32>(fxprogram_size - sizeof(program->byteSize) - sizeof(program->chunkMagic));
 	program->chunkMagic = cMagic;
 	strcpy(program->prgName, "VSTHost Preset");
-	program_data.reset();
 	GetState();
 }
 
