@@ -29,6 +29,7 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 		program->content.data.size = chunk_size;
 	}
 	else {
+		fxprogram_size = sizeof(fxProgram) - kProgramUnionSize + plugin.GetParameterCount() * sizeof(float);
 		program_data = std::make_unique<char[]>(fxprogram_size);
 		program = reinterpret_cast<fxProgram*>(program_data.get());
 	}
@@ -40,6 +41,7 @@ PresetVST2::PresetVST2(PluginVST2& p) : plugin(p), program(nullptr), fxprogram_s
 	program->byteSize = static_cast<VstInt32>(fxprogram_size - sizeof(program->byteSize) - sizeof(program->chunkMagic));
 	program->chunkMagic = cMagic;
 	strcpy(program->prgName, "VSTHost Preset");
+	program_data.reset();
 	GetState();
 }
 

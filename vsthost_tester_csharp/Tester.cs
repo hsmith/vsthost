@@ -42,8 +42,7 @@ namespace vsthost_tester_csharp
             player.Load();
 
             // host
-            //host.CreateGUIThread();
-            //host.LoadPluginList();
+            host.LoadPluginList();
         }
 
         public void Play()

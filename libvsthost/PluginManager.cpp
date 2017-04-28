@@ -56,7 +56,7 @@ bool PluginManager::Add(const std::string& path) {
 	if (plugin) { // host now owns what plugin points at
 		std::cout << "Loaded " << path << "." << std::endl;
 		plugin->Initialize(def_block_size, def_sample_rate);
-		plugin->LoadState();
+		//plugin->LoadState();
 		plugins.push_back(std::move(plugin));
 		return true;
 	}

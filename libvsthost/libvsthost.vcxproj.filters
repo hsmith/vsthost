@@ -60,9 +60,6 @@
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.cpp">
       <Filter>VST3 SDK</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.cpp">
-      <Filter>VST3 SDK</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\common\memorystream.cpp">
       <Filter>VST3 SDK</Filter>
     </ClCompile>
@@ -138,9 +135,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.h">
-      <Filter>VST3 SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.h">
       <Filter>VST3 SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\common\memorystream.h">

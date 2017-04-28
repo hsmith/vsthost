@@ -33,20 +33,18 @@ bool PresetVST3::Load() {
 
 bool PresetVST3::Load(const std::string& path) {
 	bool ret = false;
-	std::ifstream file(path, std::ifstream::binary | std::ifstream::in);
+	std::ifstream file(path, std::ifstream::binary | std::ifstream::in | std::ios::ate);
 	if (file.is_open()) {
-		std::vector<char> v;
-		while (file.good()) {
-			char c;
-			if (file.get(c))
-				v.push_back(c);
+		const auto size = file.tellg();
+		file.seekg(0, std::ifstream::beg);
+		auto buf = std::make_unique<char[]>(size);
+		if (file.read(buf.get(), size)) {
+			Steinberg::MemoryStream in(buf.get(), size);
+			if (Steinberg::Vst::PresetFile::loadPreset(&in, fuid, plugin.processor_component, plugin.edit_controller)) {
+				GetState(); // preset was loaded successfully, so i update the state of this object
+				ret = true;
+			}
 		}
-		Steinberg::MemoryStream in(&v[0], v.size());
-		if (Steinberg::Vst::PresetFile::loadPreset(&in, fuid, plugin.processor_component, plugin.edit_controller)) {
-			GetState(); // preset was loaded successfully, so i update the state of this object
-			ret = true;
-		}
-		file.close();
 	}
 	return ret;
 }

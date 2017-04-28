@@ -164,7 +164,6 @@
     <ClCompile Include="..\..\VST3 SDK\pluginterfaces\base\conststringtable.cpp" />
     <ClCompile Include="..\..\VST3 SDK\pluginterfaces\base\funknown.cpp" />
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\common\memorystream.cpp" />
-    <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.cpp" />
     <ClCompile Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.cpp" />
     <ClCompile Include="Host.cpp" />
     <ClCompile Include="HostObserver.cpp" />
@@ -192,7 +191,6 @@
     <ClInclude Include="..\..\VST3 SDK\pluginterfaces\base\funknown.h" />
     <ClInclude Include="..\..\VST3 SDK\pluginterfaces\base\pluginbasefwd.h" />
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\common\memorystream.h" />
-    <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\hosting\eventlist.h" />
     <ClInclude Include="..\..\VST3 SDK\public.sdk\source\vst\vstpresetfile.h" />
     <ClInclude Include="Host.h" />
     <ClInclude Include="HostObserver.h" />
