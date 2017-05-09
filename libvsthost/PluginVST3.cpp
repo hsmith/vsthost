@@ -103,14 +103,14 @@ PluginVST3::~PluginVST3() {
 		unit_info->release();
 	if (edit_controller) {
 		edit_controller->setComponentHandler(0);
-		if (edit_controller_initialized)
-			edit_controller->terminate();
-		edit_controller->release();
+		//if (edit_controller_initialized)
+		//	edit_controller->terminate();
+		//edit_controller->release();
 	}
 	if (processor_component && separated) {
-		if (processor_component_initialized)
-			processor_component->terminate();
-		processor_component->release();
+		//if (processor_component_initialized)
+		//	processor_component->terminate();
+		//processor_component->release();
 	}
 	if (plugin)
 		plugin->release();

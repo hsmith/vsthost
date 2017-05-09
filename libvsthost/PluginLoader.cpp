@@ -23,7 +23,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 		if (proc) { // the library is a vst3 plugin
 			VST3InitProc init_proc = reinterpret_cast<VST3InitProc>(::GetProcAddress(module, "InitDll"));
 			if (init_proc) // calling init proc to initialize the library
-				static_cast<VST3InitProc>(init_proc)();
+				init_proc();
 			Steinberg::IPluginFactory* factory = nullptr;
 			GetFactoryProc getFactory = reinterpret_cast<GetFactoryProc>(proc);
 			factory = getFactory(); // retrieving factory pointer from factory proc

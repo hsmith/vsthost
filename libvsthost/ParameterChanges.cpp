@@ -23,7 +23,6 @@ void ParameterValueQueue::SetIndex(Steinberg::int32 i) {
 void ParameterValueQueue::Clear() {
 	values.clear();
 	index = -1;
-
 }
 
 Steinberg::Vst::ParamID PLUGIN_API ParameterValueQueue::getParameterId() { 
