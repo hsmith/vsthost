@@ -451,131 +451,180 @@ private:
 	friend IHostController* Host::GetController();
 	HostController(std::shared_ptr<Host::HostImpl>& impl);
 
-	std::shared_ptr<Host::HostImpl> host;
+	std::weak_ptr<Host::HostImpl> host_weak;
 };
 
-HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) : host(impl) {
+HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) : host_weak(impl) {
 
 }
 
 bool HostController::LoadPluginList(const std::string& path) {
-	return host->LoadPluginList(path);
+	if (auto host = host_weak.lock())
+		return host->LoadPluginList(path);
+	return false;
 }
 
 bool HostController::SavePluginList(const std::string& path) const {
-	return host->SavePluginList(path);
+	if (auto host = host_weak.lock())
+		return host->SavePluginList(path);
+	return false;
 }
 
 bool HostController::LoadPluginList() {
-	return host->LoadPluginList();
+	if (auto host = host_weak.lock())
+		return host->LoadPluginList();
+	return false;
 }
 
 bool HostController::SavePluginList() const {
-	return host->SavePluginList();
+	if (auto host = host_weak.lock())
+		return host->SavePluginList();
+	return false;
 }
 
 std::uint32_t HostController::GetPluginCount() const {
-	return host->GetPluginCount();
+	if (auto host = host_weak.lock())
+		return host->GetPluginCount();
+	return 0;
 }
 
 bool HostController::AddPlugin(const std::string& path) {
-	return host->AddPlugin(path);
+	if (auto host = host_weak.lock())
+		return host->AddPlugin(path);
+	return false;
 }
 
 void HostController::DeletePlugin(std::uint32_t idx) {
-	return host->DeletePlugin(idx);
+	if (auto host = host_weak.lock())
+		return host->DeletePlugin(idx);
 }
 
 void HostController::MoveUp(std::uint32_t idx) {
-	return host->MoveUp(idx);
+	if (auto host = host_weak.lock())
+		return host->MoveUp(idx);
 }
 
 void HostController::MoveDown(std::uint32_t idx) {
-	return host->MoveDown(idx);
+	if (auto host = host_weak.lock())
+		return host->MoveDown(idx);
 }
 
 std::string HostController::GetPluginName(std::uint32_t idx) const {
-	return host->GetPluginName(idx);
+	if (auto host = host_weak.lock())
+		return host->GetPluginName(idx);
+	return "";
 }
 
 bool HostController::HasEditor(std::uint32_t idx) const {
-	return host->HasEditor(idx);
+	if (auto host = host_weak.lock())
+		return host->HasEditor(idx);
+	return false;
 }
 
 void HostController::CreateEditor(std::uint32_t idx, HWND hwnd) {
-	return host->CreateEditor(idx, hwnd);
+	if (auto host = host_weak.lock())
+		return host->CreateEditor(idx, hwnd);
 }
 
 std::uint32_t HostController::GetPluginEditorHeight(std::uint32_t idx) {
-	return host->GetPluginEditorHeight(idx);
+	if (auto host = host_weak.lock())
+		return host->GetPluginEditorHeight(idx);
+	return 0;
 }
 
 std::uint32_t HostController::GetPluginEditorWidth(std::uint32_t idx) {
-	return host->GetPluginEditorWidth(idx);
+	if (auto host = host_weak.lock())
+		return host->GetPluginEditorWidth(idx);
+	return 0;
 }
 
 void HostController::ShowEditor(std::uint32_t idx) {
-	return host->ShowEditor(idx);
+	if (auto host = host_weak.lock())
+		return host->ShowEditor(idx);
 }
 
 void HostController::HideEditor(std::uint32_t idx) {
-	return host->HideEditor(idx);
+	if (auto host = host_weak.lock())
+		return host->HideEditor(idx);
 }
 
 bool HostController::IsBypassed(std::uint32_t idx) const {
-	return host->IsBypassed(idx);
+	if (auto host = host_weak.lock())
+		return host->IsBypassed(idx);
+	return false;
 }
 
 void HostController::SetBypass(std::uint32_t idx, bool bypass) {
-	return host->SetBypass(idx, bypass);
+	if (auto host = host_weak.lock())
+		return host->SetBypass(idx, bypass);
 }
 
 bool HostController::IsActive(std::uint32_t idx) const {
-	return host->IsActive(idx);
+	if (auto host = host_weak.lock())
+		return host->IsActive(idx);
+	return false;
 }
 
 void HostController::SetActive(std::uint32_t idx, bool active) {
-	return host->SetActive(idx, active);
+	if (auto host = host_weak.lock())
+		return host->SetActive(idx, active);
 }
 
 std::uint32_t HostController::GetPluginPresetCount(std::uint32_t idx) const {
-	return host->GetPluginPresetCount(idx);
+	if (auto host = host_weak.lock())
+		return host->GetPluginPresetCount(idx);
+	return 0;
 }
 
 std::string HostController::GetPluginPresetName(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-	return host->GetPluginPresetName(plugin_idx, preset_idx);
+	if (auto host = host_weak.lock())
+		return host->GetPluginPresetName(plugin_idx, preset_idx);
+	return "";
 }
 
 void HostController::SetPluginPreset(std::uint32_t plugin_idx, std::uint32_t preset_idx) {
-	return host->SetPluginPreset(plugin_idx, preset_idx);
+	if (auto host = host_weak.lock())
+		return host->SetPluginPreset(plugin_idx, preset_idx);
 }
 
 std::string HostController::GetPluginPresetExtension(std::uint32_t idx) {
-	return host->plugins[idx].GetPresetExtension();
+	if (auto host = host_weak.lock())
+		return host->plugins[idx].GetPresetExtension();
+	return "";
 }
 
 bool HostController::SavePreset(std::uint32_t idx) {
-	return host->SavePreset(idx);
+	if (auto host = host_weak.lock())
+		return host->SavePreset(idx);
+	return false;
 }
 
 bool HostController::LoadPreset(std::uint32_t idx) {
-	return host->LoadPreset(idx);
+	if (auto host = host_weak.lock())
+		return host->LoadPreset(idx);
+	return false;
 }
 
 bool HostController::SavePreset(std::uint32_t idx, const std::string& path) {
-	return host->SavePreset(idx, path);
+	if (auto host = host_weak.lock())
+		return host->SavePreset(idx, path);
+	return false;
 }
 
 bool HostController::LoadPreset(std::uint32_t idx, const std::string& path) {
-	return host->LoadPreset(idx, path);
+	if (auto host = host_weak.lock())
+		return host->LoadPreset(idx, path);
+	return false;
 }
 
 void HostController::RegisterObserver(HostObserver* o) {
-	return host->Register(o);
+	if (auto host = host_weak.lock())
+		return host->Register(o);
 }
 
 void HostController::UnregisterObserver(HostObserver* o) {
-	return host->Unregister(o);
+	if (auto host = host_weak.lock())
+		return host->Unregister(o);
 }
 
 IHostController* Host::GetController() {

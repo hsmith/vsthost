@@ -102,7 +102,6 @@ namespace vsthost_tester_csharp_wpf
             ofd.Filter = "VST Plugins (*.dll, *.vst3)|*.dll;*.vst3|VST2 Plugins (*.dll)|*.dll|VST3 Plugins (*.vst3)|*.vst3";
             ofd.InitialDirectory = System.IO.Path.GetFullPath(HostProxy.PluginDirectory);
 
-            hcp.LoadPluginList();
             Initialize();
             SetButtons();
         }
@@ -311,6 +310,11 @@ namespace vsthost_tester_csharp_wpf
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
             hcp.SavePluginList();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            hcp.LoadPluginList();
         }
     }
 }

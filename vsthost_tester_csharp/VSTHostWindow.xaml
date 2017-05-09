@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vsthost_tester_csharp_wpf"
         mc:Ignorable="d"
-        Title="VSTHostWindow" Height="270" Width="350" ResizeMode="NoResize">
+        Title="VSTHostWindow" Height="270" Width="350" ResizeMode="NoResize" Loaded="Window_Loaded">
     <Border Padding="20">
         <StackPanel>
             <Grid>
