@@ -76,7 +76,10 @@ void PluginManager::Swap(IndexType i, IndexType j) {
 }
 
 bool PluginManager::LoadPluginList(const std::string& path) {
-	plugins.clear();
+	{
+		std::lock_guard<std::mutex> lock(manager_lock);
+		plugins.clear();
+	}
 	std::string line;
 	std::ifstream list(path);
 	if (list.is_open()) {
