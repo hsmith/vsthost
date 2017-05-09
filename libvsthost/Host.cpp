@@ -449,12 +449,12 @@ public:
 	void UnregisterObserver(HostObserver* o) override;
 private:
 	friend IHostController* Host::GetController();
-	HostController(std::shared_ptr<Host::HostImpl> impl);
+	HostController(std::shared_ptr<Host::HostImpl>& impl);
 
 	std::shared_ptr<Host::HostImpl> host;
 };
 
-HostController::HostController(std::shared_ptr<Host::HostImpl> impl) : host(std::move(impl)) {
+HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) : host(impl) {
 
 }
 

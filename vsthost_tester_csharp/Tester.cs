@@ -29,8 +29,9 @@ namespace vsthost_tester_csharp
 
         public void Initialize()
         {
+            System.Windows.Forms.MessageBox.Show(Path.GetFullPath("."));
             // load wav from file to clean wav stream
-            FileStream wav_file = new FileStream("./../../../feed/Amen-break.wav", FileMode.Open);
+            FileStream wav_file = new FileStream("./../feed/Amen-break.wav", FileMode.Open);
             wav_file.CopyTo(wav_clean);
             wav_file.Close();
 
@@ -40,9 +41,6 @@ namespace vsthost_tester_csharp
             wav.Position = 0;
             player.Stream = wav;
             player.Load();
-
-            // host
-            host.LoadPluginList();
         }
 
         public void Play()

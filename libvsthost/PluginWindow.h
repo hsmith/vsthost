@@ -24,7 +24,7 @@ private:
 	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 	bool RegisterWC(const TCHAR* class_name) override;
 public:
-	PluginWindow(std::shared_ptr<IHostController> hc, std::uint32_t idx);
+	PluginWindow(std::shared_ptr<IHostController>& hc, std::uint32_t idx);
 	~PluginWindow();
 	bool Initialize(HWND parent = NULL) override;
 	void Show() override;

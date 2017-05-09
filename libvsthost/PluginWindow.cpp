@@ -6,7 +6,7 @@ namespace VSTHost {
 const TCHAR* PluginWindow::kClassName = TEXT("PluginWindow");
 bool PluginWindow::registered = false;
 
-PluginWindow::PluginWindow(std::shared_ptr<IHostController> hc, std::uint32_t idx) 
+PluginWindow::PluginWindow(std::shared_ptr<IHostController>& hc, std::uint32_t idx) 
 	: Window(200, 300), menu(NULL), index(idx), host_ctrl(hc), last_checked(host_ctrl->GetPluginPresetCount(index)) {
 	
 }
