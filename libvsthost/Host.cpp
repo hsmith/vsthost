@@ -388,7 +388,7 @@ void Host::SetSampleRate(double sr) {
 }
 
 void Host::SetBlockSize(std::int64_t bs) {
-	impl->SetSampleRate(bs);
+	impl->SetBlockSize(bs);
 }
 
 void Host::CreateGUIThread() {
