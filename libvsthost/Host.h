@@ -32,7 +32,7 @@ public:
 	bool SavePluginList(const std::string& path) const;
 	bool LoadPluginList();
 	bool SavePluginList() const;
-	std::unique_ptr<IHostController> GetController();
+	IHostController* GetController();
 private:
 	class HostImpl;
 	std::shared_ptr<HostImpl> impl;

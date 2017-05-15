@@ -5,7 +5,6 @@
 #include <cstring>
 #include <thread>
 #include <array>
-#include <functional>
 
 #include "base/source/fstring.h"
 #include "pluginterfaces/vst/ivsthostapplication.h"
@@ -105,12 +104,12 @@ public:
 		}
 	}
 
-	void CreateGUIThread(std::unique_ptr<IHostController>& hc) { // might me broken
-		std::thread gui_thread(&Host::HostImpl::CreateGUI, this, std::ref(hc));
+	void CreateGUIThread(IHostController* hc) {
+		std::thread gui_thread(&Host::HostImpl::CreateGUI, this, hc);
 		gui_thread.detach();
 	}
 
-	void CreateGUI(std::unique_ptr<IHostController>& hc) {
+	void CreateGUI(IHostController* hc) {
 		gui.reset(new HostWindow(hc));
 		gui->Initialize(NULL);
 		gui->Go();
@@ -450,7 +449,6 @@ bool Host::SavePluginList() const {
 
 class HostController : public IHostController {
 public:
-	~HostController();
 	bool LoadPluginList(const std::string& path) override;
 	bool SavePluginList(const std::string& path) const override;
 	bool LoadPluginList() override;
@@ -482,17 +480,13 @@ public:
 	void RegisterObserver(HostObserver* o) override;
 	void UnregisterObserver(HostObserver* o) override;
 private:
+	friend IHostController* Host::GetController();
 	HostController(std::shared_ptr<Host::HostImpl>& impl);
-	friend std::unique_ptr<IHostController> Host::GetController();
 
 	std::weak_ptr<Host::HostImpl> host_weak;
 };
 
 HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) : host_weak(impl) {
-
-}
-
-HostController::~HostController() {
 
 }
 
@@ -665,7 +659,7 @@ void HostController::UnregisterObserver(HostObserver* o) {
 		return host->Unregister(o);
 }
 
-std::unique_ptr<IHostController> Host::GetController() {
-	return std::unique_ptr<IHostController>(new HostController(impl));
+IHostController* Host::GetController() {
+	return new HostController(impl);
 }
 } // namespace

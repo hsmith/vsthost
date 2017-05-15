@@ -70,7 +70,6 @@ void PluginManager::Delete(IndexType i) {
 			plugins.erase(plugins.begin() + i);
 		}
 		catch (...) {
-			std::cout << "Error deleting plugin" << std::endl;
 			plugins[i].release();
 			plugins.erase(plugins.begin() + i);
 		}
