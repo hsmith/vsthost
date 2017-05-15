@@ -8,12 +8,6 @@
 #include "PluginLoader.h"
 
 namespace VSTHost {
-PluginManager::PluginIterator::PluginIterator(std::vector<std::unique_ptr<Plugin>>::iterator i) : it(i) {}
-bool PluginManager::PluginIterator::operator!=(PluginIterator& i) { return it != i.it; }
-PluginManager::PluginIterator PluginManager::PluginIterator::operator++() { return PluginIterator(++it); }
-PluginManager::PluginIterator PluginManager::PluginIterator::operator++(int) { return PluginIterator(it++); }
-Plugin& PluginManager::PluginIterator::operator*() { return *(*it); }
-
 PluginManager::PluginManager(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr, Steinberg::FUnknown* context)
 	: def_block_size(bs), def_sample_rate(sr), vst3_context(context) {
 
@@ -43,14 +37,6 @@ std::mutex& PluginManager::GetLock() {
 	return manager_lock;
 }
 
-PluginManager::PluginIterator PluginManager::Begin() {
-	return PluginIterator(plugins.begin());
-}
-
-PluginManager::PluginIterator PluginManager::End() {
-	return PluginIterator(plugins.end());
-}
-
 bool PluginManager::Add(const std::string& path) {
 	auto plugin = PluginLoader::Load(path, vst3_context);
 	if (plugin) { // host now owns what plugin points at
@@ -58,6 +44,8 @@ bool PluginManager::Add(const std::string& path) {
 		plugin->Initialize(def_block_size, def_sample_rate);
 		plugin->LoadState();
 		plugins.push_back(std::move(plugin));
+		std::lock_guard<std::mutex> lock(manager_lock);
+		queue.push_back(plugins.back().get());
 		return true;
 	}
 	return false;
@@ -65,21 +53,31 @@ bool PluginManager::Add(const std::string& path) {
 
 void PluginManager::Delete(IndexType i) {
 	if (i < Size()) {
-		std::lock_guard<std::mutex> lock(manager_lock);
+		{
+			std::lock_guard<std::mutex> lock(manager_lock);
+			auto it = queue.begin();
+			while (*it != plugins[i].get())
+				it++;
+			if (it != queue.end())
+				queue.erase(it);
+		}
 		plugins.erase(plugins.begin() + i);
 	}
 }
 
 void PluginManager::Swap(IndexType i, IndexType j) {
-	if (i < Size() && j < Size())
+	if (i < Size() && j < Size()) {
 		std::swap(plugins[i], plugins[j]);
+		RecreateQueue();
+	}
 }
 
 bool PluginManager::LoadPluginList(const std::string& path) {
 	{
 		std::lock_guard<std::mutex> lock(manager_lock);
-		plugins.clear();
+		queue.clear();
 	}
+	plugins.clear();
 	std::string line;
 	std::ifstream list(path);
 	if (list.is_open()) {
@@ -119,6 +117,33 @@ void PluginManager::SetBlockSize(Steinberg::Vst::TSamples bs) {
 
 void PluginManager::SetSampleRate(Steinberg::Vst::SampleRate sr) {
 	def_sample_rate = sr;
+}
+
+std::vector<Plugin*>& PluginManager::GetQueue() {
+	return queue;
+}
+
+void PluginManager::RemoveFromQueue(IndexType i) {
+	if (i < Size()) {
+		std::lock_guard<std::mutex> lock(manager_lock);
+		auto it = queue.begin();
+		while (it != queue.end() && *it != plugins[i].get())
+			it++;
+		if (it != queue.end())
+			queue.erase(it);
+	}
+}
+
+void PluginManager::AddToQueue(IndexType i) {
+	RecreateQueue(); // lazy way
+}
+
+void PluginManager::RecreateQueue() {
+	std::lock_guard<std::mutex> lock(manager_lock);
+	queue.clear();
+	for (auto& p : plugins)
+		if (p->IsActive() && !p->IsBypassed())
+			queue.push_back(p.get());
 }
 
 std::string PluginManager::GetRelativePath(const std::string& absolute) const {

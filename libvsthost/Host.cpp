@@ -29,23 +29,33 @@ public:
 	}
 
 	void Process(float** input, float** output, std::int64_t block_size) {
-		std::lock_guard<std::mutex> lock(plugins.GetLock());
-		if (plugins.Size() == 1) {
-			plugins.Front().Process(input, output, block_size);
-		}
-		else if (plugins.Size() > 1) {
-			plugins.Front().Process(input, buffers[1], block_size);
-			unsigned i, last_processed = 1;
-			for (i = 1; i < plugins.Size() - 1; i++) {
-				last_processed = (i + 1) % 2;
-				plugins[i].Process(buffers[i % 2], buffers[last_processed], block_size);
+		auto queue = plugins.GetQueue();
+		if (queue.size()) {
+			std::lock_guard<std::mutex> lock(plugins.GetLock());
+			if (queue.size() == 1) {
+				queue.front()->Process(input, output, block_size);
 			}
-			plugins.Back().Process(buffers[last_processed], output, block_size);
+			else if (queue.size() > 1) {
+				queue.front()->Process(input, buffers[1], block_size);
+				unsigned i, last_processed = 1;
+				for (i = 1; i < queue.size() - 1; i++) {
+					last_processed = (i + 1) % 2;
+					queue[i]->Process(buffers[i % 2], buffers[last_processed], block_size);
+				}
+				queue.back()->Process(buffers[last_processed], output, block_size);
+			}
 		}
-		else {
-			for (unsigned i = 0; i < GetChannelCount(); ++i) {
+		else
+			for (unsigned i = 0; i < GetChannelCount(); ++i)
 				std::memcpy(output[i], input[i], sizeof(input[0][0]) * block_size);
-			}
+	}
+
+	void ProcessReplace(float** input_output, std::int64_t block_size) {
+		auto queue = plugins.GetQueue();
+		if (queue.size()) {
+			std::lock_guard<std::mutex> lock(plugins.GetLock());
+			for (auto &p : queue)
+				p->Process(input_output, input_output, block_size);
 		}
 	}
 
@@ -53,24 +63,27 @@ public:
 		Process(reinterpret_cast<std::int16_t*>(input), reinterpret_cast<std::int16_t*>(output), block_size);
 	}
 
+	void ProcessReplace(char* input_output, std::int64_t block_size) {
+		ProcessReplace(reinterpret_cast<std::int16_t*>(input_output), block_size);
+	}
+
 	void Process(std::int16_t* input, std::int16_t* output, std::int64_t block_size) {
-		std::lock_guard<std::mutex> lock(plugins.GetLock());
-		if (plugins.Size() == 0) {
+		auto queue = plugins.GetQueue();
+		if (queue.size()) {
+			ConvertFrom16Bits(input, buffers[0]);
+			ProcessReplace(buffers[0], block_size);
+			ConvertTo16Bits(buffers[0], output);
+		}
+		else
 			std::memcpy(output, input, block_size * 2 * GetChannelCount());
-			return;
-		}
-		ConvertFrom16Bits(input, buffers[0]);
-		if (plugins.Size() == 1) {
-			plugins.Front().Process(buffers[0], buffers[1], block_size);
-			ConvertTo16Bits(buffers[1], output);
-		}
-		else if (plugins.Size() > 1) {
-			unsigned last_processed = 0;			// remember where the most recently processed buffer is,
-			for (unsigned i = 0; i < plugins.Size(); ++i) {	// so that it could be moved to output.
-				last_processed = (i + 1) % 2;
-				plugins[i].Process(buffers[i % 2], buffers[last_processed], block_size);
-			}
-			ConvertTo16Bits(buffers[last_processed], output);
+	}
+
+	void ProcessReplace(std::int16_t* input_output, std::int64_t block_size) {
+		auto queue = plugins.GetQueue();
+		if (queue.size()) {
+			ConvertFrom16Bits(input_output, buffers[0]);
+			ProcessReplace(buffers[0], block_size);
+			ConvertTo16Bits(buffers[0], input_output);
 		}
 	}
 
@@ -241,6 +254,8 @@ private:
 	void SetBypass(std::uint32_t idx, bool bypass) {
 		if (idx < plugins.Size()) {
 			plugins[idx].SetBypass(bypass);
+			if (IsActive(idx))
+				bypass ? plugins.RemoveFromQueue(idx) : plugins.AddToQueue(idx);
 			Notify(HostEvent::BypassSet, idx, bypass);
 		}
 	}
@@ -254,6 +269,11 @@ private:
 	void SetActive(std::uint32_t idx, bool active) {
 		if (idx < plugins.Size()) {
 			plugins[idx].SetActive(active);
+			if (!IsBypassed(idx) && active)
+				plugins.AddToQueue(idx);
+			else if (IsBypassed(idx) && !active)
+				plugins.RemoveFromQueue(idx);
+			active && !IsBypassed(idx) ? plugins.AddToQueue(idx) : plugins.RemoveFromQueue(idx);
 			Notify(HostEvent::ActiveSet, idx, active);
 		}
 	}
@@ -381,6 +401,18 @@ void Host::Process(char* input, char* output, std::int64_t num_samples) {
 
 void Host::Process(std::int16_t* input, std::int16_t* output, std::int64_t num_samples) {
 	impl->Process(input, output, num_samples);
+}
+
+void Host::ProcessReplace(float** input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
+}
+
+void Host::ProcessReplace(char* input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
+}
+
+void Host::ProcessReplace(std::int16_t* input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
 }
 
 void Host::SetSampleRate(double sr) {
