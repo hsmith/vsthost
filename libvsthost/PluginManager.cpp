@@ -40,12 +40,17 @@ std::mutex& PluginManager::GetLock() {
 bool PluginManager::Add(const std::string& path) {
 	auto plugin = PluginLoader::Load(path, vst3_context);
 	if (plugin) { // host now owns what plugin points at
-		std::cout << "Loaded " << path << "." << std::endl;
-		plugin->Initialize(def_block_size, def_sample_rate);
-		plugin->LoadState();
-		plugins.push_back(std::move(plugin));
-		std::lock_guard<std::mutex> lock(manager_lock);
-		queue.push_back(plugins.back().get());
+		try {
+			plugin->Initialize(def_block_size, def_sample_rate);
+			plugin->LoadState();
+			plugins.push_back(std::move(plugin));
+			std::lock_guard<std::mutex> lock(manager_lock);
+			queue.push_back(plugins.back().get());
+			std::cout << "Loaded " << path << "." << std::endl;
+		}
+		catch (...) {
+			std::cout << "Error initializing plugin" << std::endl;
+		}
 		return true;
 	}
 	return false;
@@ -61,7 +66,13 @@ void PluginManager::Delete(IndexType i) {
 			if (it != queue.end())
 				queue.erase(it);
 		}
-		plugins.erase(plugins.begin() + i);
+		try {
+			plugins.erase(plugins.begin() + i);
+		}
+		catch (...) {
+			plugins[i].release();
+			plugins.erase(plugins.begin() + i);
+		}
 	}
 }
 
