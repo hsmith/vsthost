@@ -19,8 +19,11 @@ namespace VSTHost {
 class Host::HostImpl : public HostSubject, public Steinberg::Vst::IHostApplication {
 	friend class HostController;
 public:
-	HostImpl(std::int64_t block_size, double sample_rate)
-	: block_size(block_size), sample_rate(sample_rate), plugins(block_size, sample_rate, UnknownCast()) {
+	HostImpl(std::int64_t block_size, double sample_rate, SpeakerArrangement sa)
+	: block_size(block_size)
+	, sample_rate(sample_rate)
+	, speaker_arrangement(GetVSTSpeakerArrangement(sa))
+	, plugins(block_size, sample_rate, speaker_arrangement, UnknownCast()) {
 		AllocateBuffers();
 	}
 
@@ -88,19 +91,38 @@ public:
 	}
 
 	void SetSampleRate(Steinberg::Vst::SampleRate sr) {
-		sample_rate = sr;
-		plugins.SetSampleRate(sample_rate);
-		for (decltype(plugins.Size()) i = 0; i < plugins.Size(); ++i)
-			plugins.GetAt(i).SetSampleRate(sample_rate);
+		if (sr != sample_rate) {
+			sample_rate = sr;
+			plugins.SetSampleRate(sample_rate);
+		}
 	}
 
 	void SetBlockSize(Steinberg::Vst::TSamples bs) {
 		if (bs != block_size) {
 			block_size = bs;
+			std::lock_guard<std::mutex> lock(plugins.GetLock());
 			plugins.SetBlockSize(block_size);
 			AllocateBuffers();
-			for (decltype(plugins.Size()) i = 0; i < plugins.Size(); ++i)
-				plugins[i].SetBlockSize(block_size);
+		}
+	}
+
+	Steinberg::Vst::SpeakerArrangement GetVSTSpeakerArrangement(SpeakerArrangement sa) {
+		switch (sa) {
+		case SpeakerArrangement::Mono: return Steinberg::Vst::SpeakerArr::kMono;
+		case SpeakerArrangement::Stereo: return Steinberg::Vst::SpeakerArr::kStereo;
+		case SpeakerArrangement::Surround_5_1: return Steinberg::Vst::SpeakerArr::k51;
+		case SpeakerArrangement::Surround_7_1: return Steinberg::Vst::SpeakerArr::k71Cine; // ?
+		default: return Steinberg::Vst::SpeakerArr::kEmpty;
+		}
+	}
+
+	void SetSpeakerArrangement(SpeakerArrangement sa) {
+		auto sa_vst = GetVSTSpeakerArrangement(sa);
+		if (sa_vst != speaker_arrangement) {
+			speaker_arrangement = sa_vst;
+			std::lock_guard<std::mutex> lock(plugins.GetLock());
+			plugins.SetSpeakerArrangement(sa_vst);
+			AllocateBuffers();
 		}
 	}
 
@@ -326,14 +348,16 @@ private:
 	}
 
 	void AllocateBuffers() {
-		unsigned i = 0;
-		for (auto& buffer : smart_buffers) {
-			unsigned j = 0;
-			for (auto& channel : buffer) {
-				channel.reset(new Steinberg::Vst::Sample32[block_size]);
-				buffers[i][j++] = channel.get();
+		for (auto i = 0u; i < 2; ++i) {
+			smart_buffers[i].clear();
+			buffers_ptrs[i].clear();
+			std::vector<std::unique_ptr<Steinberg::Vst::Sample32[]>> v(GetChannelCount());
+			for (auto j = 0u; j < GetChannelCount(); ++i) {
+				v.emplace_back(block_size);
+				buffers_ptrs[i].push_back(v.back().get());
 			}
-			++i;
+			smart_buffers[i] = std::move(v);
+			buffers[i] = buffers_ptrs[i].data();
 		}
 	}
 
@@ -366,12 +390,6 @@ private:
 		return static_cast<Steinberg::FUnknown *>(this);
 	}
 
-	constexpr static Steinberg::uint32 channels = 2u;
-	constexpr static Steinberg::uint32 GetChannelCount() {
-		return channels; // only stereo
-	}
-
-
 	PluginManager plugins;
 	std::unique_ptr<HostWindow> gui;
 	std::thread ui_thread;
@@ -379,11 +397,19 @@ private:
 
 	Steinberg::Vst::TSamples block_size;
 	Steinberg::Vst::SampleRate sample_rate;
-	Steinberg::Vst::Sample32* buffers[2][channels /*GetChannelCount()*/]{};
-	std::array<std::array<std::unique_ptr<Steinberg::Vst::Sample32[]>, channels /*GetChannelCount()*/>, 2> smart_buffers;
+	Steinberg::Vst::SpeakerArrangement speaker_arrangement;
+
+	Steinberg::uint32 GetChannelCount() {
+		return static_cast<Steinberg::uint32>(Steinberg::Vst::SpeakerArr::getChannelCount(speaker_arrangement));
+	}
+
+	Steinberg::Vst::Sample32** buffers[2]{};
+	std::vector<Steinberg::Vst::Sample32*> buffers_ptrs[2];
+	std::vector<std::unique_ptr<Steinberg::Vst::Sample32[]>> smart_buffers[2];
 };
 
-Host::Host(std::int64_t max_num_samples, double sample_rate) : impl(new Host::HostImpl(max_num_samples, sample_rate)) {
+Host::Host(std::int64_t max_num_samples, double sample_rate, SpeakerArrangement sa) 
+	: impl(new Host::HostImpl(max_num_samples, sample_rate, sa)) {
 
 }
 
@@ -486,7 +512,8 @@ private:
 	std::weak_ptr<Host::HostImpl> host_weak;
 };
 
-HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) : host_weak(impl) {
+HostController::HostController(std::shared_ptr<Host::HostImpl>& impl) 
+	: host_weak(impl) {
 
 }
 

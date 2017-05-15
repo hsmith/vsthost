@@ -8,8 +8,11 @@
 #include "PluginLoader.h"
 
 namespace VSTHost {
-PluginManager::PluginManager(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr, Steinberg::FUnknown* context)
-	: def_block_size(bs), def_sample_rate(sr), vst3_context(context) {
+PluginManager::PluginManager(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr, Steinberg::Vst::SpeakerArrangement sa, Steinberg::FUnknown* context)
+	: def_block_size(bs)
+	, def_sample_rate(sr)
+	, def_speaker_arrangement(sa)
+	, vst3_context(context) {
 
 }
 
@@ -42,6 +45,10 @@ bool PluginManager::Add(const std::string& path) {
 	if (plugin) { // host now owns what plugin points at
 		try {
 			plugin->Initialize(def_block_size, def_sample_rate);
+			if (!plugin->SetSpeakerArrangement(def_speaker_arrangement)) {
+				std::cout << "Plugin does not accept the speaker arrangement!" << std::endl;
+				return false;
+			}
 			plugin->LoadState();
 			plugins.push_back(std::move(plugin));
 			std::lock_guard<std::mutex> lock(manager_lock);
@@ -49,7 +56,7 @@ bool PluginManager::Add(const std::string& path) {
 			std::cout << "Loaded " << path << "." << std::endl;
 		}
 		catch (...) {
-			std::cout << "Error initializing plugin" << std::endl;
+			std::cout << "Error initializing plugin." << std::endl;
 		}
 		return true;
 	}
@@ -72,6 +79,7 @@ void PluginManager::Delete(IndexType i) {
 		catch (...) {
 			plugins[i].release();
 			plugins.erase(plugins.begin() + i);
+			std::cout << "Error unloading plugin." << std::endl;
 		}
 	}
 }
@@ -124,10 +132,27 @@ bool PluginManager::SavePluginList(const std::string& path) const {
 
 void PluginManager::SetBlockSize(Steinberg::Vst::TSamples bs) {
 	def_block_size = bs;
+	for (auto& p : plugins)
+		p->SetBlockSize(def_block_size);
 }
 
 void PluginManager::SetSampleRate(Steinberg::Vst::SampleRate sr) {
 	def_sample_rate = sr;
+	for (auto& p : plugins)
+		p->SetSampleRate(def_sample_rate);
+}
+
+void PluginManager::SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) {
+	def_speaker_arrangement = sa;
+	using idx_t = decltype(Size());
+	std::vector<idx_t> to_delete;
+	for (idx_t i = 0; i < Size(); ++i)
+		if (!plugins[i]->SetSpeakerArrangement(def_speaker_arrangement)) {
+			to_delete.push_back(i); // registering which plugins did not accept new SpeakerArrangement
+			std::cout << plugins[i]->GetPluginName() << " did not accept new speaker arranegement." << std::endl;
+		}
+	for (auto it = to_delete.crbegin(); it != to_delete.crend(); ++it)
+		Delete(*it); // to unload these plugins, going from back to front to not disrupt indices
 }
 
 std::vector<Plugin*>& PluginManager::GetQueue() {

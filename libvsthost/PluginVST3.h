@@ -36,6 +36,7 @@ public:
 	void ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) override;
 	void SetBlockSize(Steinberg::Vst::TSamples bs) override;
 	void SetSampleRate(Steinberg::Vst::SampleRate sr) override;
+	bool SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) override;
 	// presets
 	Steinberg::uint32 GetProgramCount() const override;
 	void SetProgram(Steinberg::uint32 id) override;

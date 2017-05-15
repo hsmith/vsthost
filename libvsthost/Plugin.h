@@ -31,6 +31,7 @@ public:
 	virtual void ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) = 0;
 	virtual void SetBlockSize(Steinberg::Vst::TSamples bs) = 0;
 	virtual void SetSampleRate(Steinberg::Vst::SampleRate sr) = 0;
+	virtual bool SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) = 0;
 	std::string GetPluginFileName() const;
 	std::string GetPluginDirectory() const;
 	std::string GetPluginPath() const;
@@ -67,7 +68,7 @@ protected:
 	virtual void Suspend() = 0;
 	virtual void StartProcessing() = 0;
 	virtual void StopProcessing() = 0;
-	static Steinberg::uint32 GetChannelCount();
+	Steinberg::uint32 GetChannelCount();
 
 	HMODULE module;
 	std::mutex plugin_lock; // locked when plugin is processing or setting itself (in)active
@@ -77,6 +78,7 @@ protected:
 	bool can_stereo{ false };
 	Steinberg::Vst::TSamples block_size;
 	Steinberg::Vst::SampleRate sample_rate;
+	Steinberg::Vst::SpeakerArrangement speaker_arrangement;
 	std::unique_ptr<Preset> state;
 	bool has_editor{ false };
 };

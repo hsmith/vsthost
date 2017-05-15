@@ -7,6 +7,15 @@
 #include <windows.h>
 
 namespace VSTHost {
+enum class SpeakerArrangement {
+	Unknown,
+	Mono = 1,
+	Stereo = 2,
+	Surround_5_1 = 6,
+	Surround_7_1 = 8
+};
+
+
 class IHostController;
 class HostController;
 class HostObserver;
