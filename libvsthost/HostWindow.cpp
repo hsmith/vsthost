@@ -21,7 +21,7 @@ const int HostWindow::kButtonWidth = 120;
 const int HostWindow::kButtonHeight = 30;
 bool HostWindow::registered = false;
 
-HostWindow::HostWindow(IHostController* hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(hc) {
+HostWindow::HostWindow(std::unique_ptr<IHostController>& hc) : Window(kWindowWidth, kWindowHeight), font(NULL), host_ctrl(std::move(hc)) {
 	
 }
 

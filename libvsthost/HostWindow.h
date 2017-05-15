@@ -31,7 +31,7 @@ private:
 	bool RegisterWC(const TCHAR* class_name) override;
 	void OnCreate(HWND hWnd) override;
 public:
-	HostWindow(IHostController* hc);
+	HostWindow(std::unique_ptr<IHostController>& hc);
 	~HostWindow();
 	bool Initialize(HWND parent) override;
 private:
