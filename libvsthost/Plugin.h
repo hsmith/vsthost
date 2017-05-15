@@ -28,6 +28,7 @@ public:
 	virtual std::basic_string<TCHAR> GetPluginName() const = 0;
 	virtual std::string GetPluginNameA() const = 0;
 	virtual void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) = 0;
+	virtual void ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) = 0;
 	virtual void SetBlockSize(Steinberg::Vst::TSamples bs) = 0;
 	virtual void SetSampleRate(Steinberg::Vst::SampleRate sr) = 0;
 	std::string GetPluginFileName() const;
@@ -69,7 +70,6 @@ protected:
 	static Steinberg::uint32 GetChannelCount();
 
 	HMODULE module;
-	std::mutex plugin_lock; // locked when plugin is processing or setting itself (in)active
 	bool active{ false };
 	bool bypass{ false };
 	// can stereo

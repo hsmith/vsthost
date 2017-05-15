@@ -305,6 +305,10 @@ void PluginVST3::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sampl
 	}
 }
 
+void PluginVST3::ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) {
+
+}
+
 void PluginVST3::SetBlockSize(Steinberg::Vst::TSamples bs) {
 	bool was_active;
 	if (was_active = IsActive())

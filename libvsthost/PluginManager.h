@@ -17,24 +17,12 @@ class PluginLoader;
 class PluginManager {
 	using IndexType = std::vector<std::unique_ptr<Plugin>>::size_type;
 public:
-	class PluginIterator {
-	public:
-		PluginIterator(std::vector<std::unique_ptr<Plugin>>::iterator i);
-		bool operator!=(PluginIterator& i);
-		PluginIterator operator++();
-		PluginIterator operator++(int);
-		Plugin& operator*();
-	private:
-		std::vector<std::unique_ptr<Plugin>>::iterator it;
-	};
 	PluginManager(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr, Steinberg::FUnknown* context);
 	IndexType Size() const;
 	Plugin& GetAt(IndexType i) const;
 	Plugin& operator[](IndexType i) const;
 	Plugin& Front() const;
 	Plugin& Back() const;
-	PluginIterator Begin();
-	PluginIterator End();
 	std::mutex& GetLock();
 	bool Add(const std::string& path);
 	void Delete(IndexType i);
@@ -45,7 +33,12 @@ public:
 
 	void SetBlockSize(Steinberg::Vst::TSamples bs);
 	void SetSampleRate(Steinberg::Vst::SampleRate sr);
+
+	std::vector<Plugin*>& GetQueue();
+	void RemoveFromQueue(IndexType i);
+	void AddToQueue(IndexType i);
 private:
+	void RecreateQueue();
 	std::string GetRelativePath(const std::string& absolute) const;
 	std::string GetAbsolutePath(const std::string& relative) const;
 	Steinberg::Vst::TSamples def_block_size;		// default block size & sample rate
@@ -53,6 +46,7 @@ private:
 	Steinberg::FUnknown* vst3_context;
 	std::vector<std::unique_ptr<Plugin>> plugins;
 	std::mutex manager_lock; // used to not delete an element while iterating over all contents
+	std::vector<Plugin*> queue;
 };
 } // namespace
 

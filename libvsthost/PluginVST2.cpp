@@ -120,19 +120,15 @@ std::string PluginVST2::GetPluginNameA() const {
 }
 
 void PluginVST2::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) {
-	if (IsActive() && !BypassProcess()) {
-		std::lock_guard<std::mutex> lock(plugin_lock);
-		StartProcessing();
-		if (0 != (plugin->flags & VstAEffectFlags::effFlagsCanReplacing))
-			plugin->processReplacing(plugin.get(), input, output, block_size);
-		else
-			plugin->process(plugin.get(), input, output, block_size);
-		StopProcessing();
-	}
-	else {
-		for (unsigned i = 0; i < GetChannelCount(); ++i)
-			std::memcpy(static_cast<void*>(output[i]), static_cast<void*>(input[i]), sizeof(input[0][0]) * block_size);
-	}
+	StartProcessing();
+	plugin->processReplacing(plugin.get(), input, output, block_size);
+	StopProcessing();
+}
+
+void PluginVST2::ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) {
+	StartProcessing();
+	plugin->processReplacing(plugin.get(), input_output, input_output, block_size);
+	StopProcessing();
 }
 
 void PluginVST2::SetBlockSize(Steinberg::Vst::TSamples bs) {

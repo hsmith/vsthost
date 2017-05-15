@@ -25,6 +25,7 @@ public:
 	std::basic_string<TCHAR> GetPluginName() const override;
 	std::string GetPluginNameA() const override;
 	void Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) override;
+	void ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) override;
 	void SetBlockSize(Steinberg::Vst::TSamples bs) override;
 	void SetSampleRate(Steinberg::Vst::SampleRate sr) override;
 	// presets
