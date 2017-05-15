@@ -124,20 +124,23 @@ std::vector<Plugin*>& PluginManager::GetQueue() {
 }
 
 void PluginManager::RemoveFromQueue(IndexType i) {
-	std::lock_guard<std::mutex> lock(manager_lock);
-	auto it = queue.begin();
-	while (*it != plugins[i].get())
-		it++;
-	if (it != queue.end())
-		queue.erase(it);
+	if (i < Size()) {
+		std::lock_guard<std::mutex> lock(manager_lock);
+		auto it = queue.begin();
+		while (it != queue.end() && *it != plugins[i].get())
+			it++;
+		if (it != queue.end())
+			queue.erase(it);
+	}
 }
 
 void PluginManager::AddToQueue(IndexType i) {
-	RecreateQueue();
+	RecreateQueue(); // lazy way
 }
 
 void PluginManager::RecreateQueue() {
 	std::lock_guard<std::mutex> lock(manager_lock);
+	queue.clear();
 	for (auto& p : plugins)
 		if (p->IsActive() && !p->IsBypassed())
 			queue.push_back(p.get());

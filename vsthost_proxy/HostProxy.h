@@ -22,6 +22,9 @@ namespace VSTHost {
 		void Process(array<array<float>^>^ input, array<array<float>^>^ output, Int64 num_samples);
 		void Process(array<Byte>^ input, array<Byte>^ output, Int64 num_samples);
 		void Process(array<Int16>^ input, array<Int16>^ output, Int64 num_samples);
+		void ProcessReplace(array<array<float>^>^ input_output, Int64 num_samples);
+		void ProcessReplace(array<Byte>^ input_output, Int64 num_samples);
+		void ProcessReplace(array<Int16>^ input_output, Int64 num_samples);
 		void SetSampleRate(double sr);
 		void SetBlockSize(Int64 bs);
 		void CreateGUIThread();

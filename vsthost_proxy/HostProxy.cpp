@@ -48,7 +48,7 @@ namespace VSTHost {
 
 	void HostProxy::Process(array<array<float>^>^ input, array<array<float>^>^ output, Int64 num_samples) {
 		if (!in_f) {
-			channels = input->Length; // assert input->Length == output->Length?
+			channels = input->Length;
 			in_f = new float*[channels];
 			out_f = new float*[channels];
 			for (int i = 0; i < channels; ++i) {
@@ -83,6 +83,45 @@ namespace VSTHost {
 		System::Runtime::InteropServices::Marshal::Copy(input, 0, IntPtr(in_s), size);
 		host->Process(in_s, out_s, num_samples);
 		System::Runtime::InteropServices::Marshal::Copy(IntPtr(out_s), output, 0, size);
+	}
+
+	void HostProxy::ProcessReplace(array<array<float>^>^ input_output, Int64 num_samples) {
+		if (!in_f) {
+			channels = input_output->Length;
+			in_f = new float*[channels];
+			out_f = new float*[channels];
+			for (int i = 0; i < channels; ++i) {
+				in_f[i] = new float[max_samples];
+				out_f[i] = new float[max_samples];
+			}
+		}
+		for (int i = 0; i < channels; ++i)
+			System::Runtime::InteropServices::Marshal::Copy(input_output[i], 0, IntPtr(in_f[i]), input_output[i]->Length);
+		host->ProcessReplace(in_f, num_samples);
+		for (int i = 0; i < channels; ++i)
+			System::Runtime::InteropServices::Marshal::Copy(IntPtr(in_f[i]), input_output[i], 0, input_output[i]->Length);
+	}
+
+	void HostProxy::ProcessReplace(array<Byte>^ input_output, Int64 num_samples) {
+		if (!in_c) {
+			in_c = new char[max_samples * 2 * 2]; // stereo 16 bit
+			out_c = new char[max_samples * 2 * 2];
+		}
+		const int size = input_output->Length;
+		System::Runtime::InteropServices::Marshal::Copy(input_output, 0, IntPtr(in_c), size);
+		host->ProcessReplace(in_c, num_samples);
+		System::Runtime::InteropServices::Marshal::Copy(IntPtr(in_c), input_output, 0, size);
+	}
+
+	void HostProxy::ProcessReplace(array<Int16>^ input_output, Int64 num_samples) {
+		if (!in_s) {
+			in_s = new short[max_samples * 2];
+			out_s = new short[max_samples * 2];
+		}
+		const int size = input_output->Length;
+		System::Runtime::InteropServices::Marshal::Copy(input_output, 0, IntPtr(in_s), size);
+		host->ProcessReplace(in_s, num_samples);
+		System::Runtime::InteropServices::Marshal::Copy(IntPtr(in_s), input_output, 0, size);
 	}
 
 	void HostProxy::SetSampleRate(double sr) {

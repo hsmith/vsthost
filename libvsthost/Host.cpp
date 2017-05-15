@@ -254,7 +254,8 @@ private:
 	void SetBypass(std::uint32_t idx, bool bypass) {
 		if (idx < plugins.Size()) {
 			plugins[idx].SetBypass(bypass);
-			bypass || !IsActive(idx) ? plugins.RemoveFromQueue(idx) : plugins.AddToQueue(idx);
+			if (IsActive(idx))
+				bypass ? plugins.RemoveFromQueue(idx) : plugins.AddToQueue(idx);
 			Notify(HostEvent::BypassSet, idx, bypass);
 		}
 	}
@@ -268,6 +269,10 @@ private:
 	void SetActive(std::uint32_t idx, bool active) {
 		if (idx < plugins.Size()) {
 			plugins[idx].SetActive(active);
+			if (!IsBypassed(idx) && active)
+				plugins.AddToQueue(idx);
+			else if (IsBypassed(idx) && !active)
+				plugins.RemoveFromQueue(idx);
 			active && !IsBypassed(idx) ? plugins.AddToQueue(idx) : plugins.RemoveFromQueue(idx);
 			Notify(HostEvent::ActiveSet, idx, active);
 		}
@@ -396,6 +401,18 @@ void Host::Process(char* input, char* output, std::int64_t num_samples) {
 
 void Host::Process(std::int16_t* input, std::int16_t* output, std::int64_t num_samples) {
 	impl->Process(input, output, num_samples);
+}
+
+void Host::ProcessReplace(float** input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
+}
+
+void Host::ProcessReplace(char* input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
+}
+
+void Host::ProcessReplace(std::int16_t* input_output, std::int64_t num_samples) {
+	impl->ProcessReplace(input_output, num_samples);
 }
 
 void Host::SetSampleRate(double sr) {

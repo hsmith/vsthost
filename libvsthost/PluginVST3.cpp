@@ -282,7 +282,10 @@ std::string PluginVST3::GetPluginNameA() const {
 }
 
 void PluginVST3::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) {
-	if (IsActive() && !BypassProcess()) {
+	if (BypassProcess())
+		for (unsigned i = 0; i < GetChannelCount(); ++i)
+			std::memcpy(static_cast<void*>(output[i]), static_cast<void*>(input[i]), sizeof(input[0][0]) * block_size);
+	else {
 		std::lock_guard<std::mutex> lock(plugin_lock);
 		pd.inputs->channelBuffers32 = input;
 		pd.outputs->channelBuffers32 = output;
@@ -299,14 +302,25 @@ void PluginVST3::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sampl
 			//offset = 0;
 		}
 	}
-	else {
-		for (unsigned i = 0; i < GetChannelCount(); ++i)
-			std::memcpy(static_cast<void*>(output[i]), static_cast<void*>(input[i]), sizeof(input[0][0]) * block_size);
-	}
 }
 
 void PluginVST3::ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) {
-
+	if (BypassProcess())
+		return;
+	else {
+		std::lock_guard<std::mutex> lock(plugin_lock);
+		pd.inputs->channelBuffers32 = input_output;
+		pd.outputs->channelBuffers32 = input_output;
+		pd.numSamples = block_size;
+		{
+			std::lock_guard<std::mutex> lock(queue_lock);
+			if (current_queue && current_queue->GetIndex() == -1)
+				pd.inputParameterChanges->addParameterData(current_queue->getParameterId(), current_param_idx);
+		}
+		audio->process(pd);
+		ProcessOutputParameterChanges();
+		dynamic_cast<ParameterChanges*>(pd.inputParameterChanges)->ClearQueue();
+	}
 }
 
 void PluginVST3::SetBlockSize(Steinberg::Vst::TSamples bs) {
@@ -405,6 +419,7 @@ void PluginVST3::SetParameter(Steinberg::Vst::ParamID id, Steinberg::Vst::ParamV
 
 void PluginVST3::SetBypass(bool bypass_) {
 	if (bypass != bypass_) {
+		std::lock_guard<std::mutex> lock(plugin_lock);
 		bypass = bypass_;
 		if (bypass_param_id != -1) {
 			Steinberg::Vst::ParamValue value = static_cast<Steinberg::Vst::ParamValue>(bypass);
@@ -414,7 +429,7 @@ void PluginVST3::SetBypass(bool bypass_) {
 }
 
 bool PluginVST3::BypassProcess() const {			// wywolanie process omijaj tylko wtedy, jak
-	return bypass && bypass_param_id == -1;	// bypass == true i nie znaleziono parametru "bypass"
+	return (bypass && bypass_param_id == -1) || !active;	// bypass == true i nie znaleziono parametru "bypass"
 }
 
 bool PluginVST3::HasEditor() const {

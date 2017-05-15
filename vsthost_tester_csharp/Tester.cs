@@ -68,9 +68,12 @@ namespace vsthost_tester_csharp
                 if (wav_clean.Position + temp_block_size_bytes > wav_clean.Length)
                     temp_block_size_bytes = Convert.ToInt32(wav_clean.Length - wav_clean.Position);
 
+                //wav_clean.Read(in_buffer, 0, temp_block_size_bytes);
+                //host.Process(in_buffer, out_buffer, temp_block_size_bytes / 4);
+                //wav_processed.Write(out_buffer, 0, temp_block_size_bytes);
                 wav_clean.Read(in_buffer, 0, temp_block_size_bytes);
-                host.Process(in_buffer, out_buffer, temp_block_size_bytes / 4);
-                wav_processed.Write(out_buffer, 0, temp_block_size_bytes);
+                host.ProcessReplace(in_buffer, temp_block_size_bytes / 4);
+                wav_processed.Write(in_buffer, 0, temp_block_size_bytes);
             }
             wav_processed.Position = 0;
             player.Stream = wav_processed;

@@ -21,6 +21,9 @@ public:
 	void Process(float** input, float** output, std::int64_t num_samples); // num_samples - samples per channel
 	void Process(char* input, char* output, std::int64_t num_samples);
 	void Process(std::int16_t* input, std::int16_t* output, std::int64_t num_samples);
+	void ProcessReplace(float** input_output, std::int64_t num_samples);
+	void ProcessReplace(char* input_output, std::int64_t num_samples);
+	void ProcessReplace(std::int16_t* input_output, std::int64_t num_samples);
 	void SetSampleRate(double sr);
 	void SetBlockSize(std::int64_t bs);
 	void CreateGUIThread();

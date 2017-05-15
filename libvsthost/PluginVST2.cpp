@@ -120,12 +120,21 @@ std::string PluginVST2::GetPluginNameA() const {
 }
 
 void PluginVST2::Process(Steinberg::Vst::Sample32** input, Steinberg::Vst::Sample32** output, Steinberg::Vst::TSamples block_size) {
-	StartProcessing();
-	plugin->processReplacing(plugin.get(), input, output, block_size);
-	StopProcessing();
+	if (BypassProcess())
+		for (unsigned i = 0; i < GetChannelCount(); ++i)
+			std::memcpy(static_cast<void*>(output[i]), static_cast<void*>(input[i]), sizeof(input[0][0]) * block_size);
+	else {
+		std::lock_guard<std::mutex> lock(plugin_lock);
+		StartProcessing();
+		plugin->processReplacing(plugin.get(), input, output, block_size);
+		StopProcessing();
+	}
 }
 
 void PluginVST2::ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) {
+	if (BypassProcess())
+		return;
+	std::lock_guard<std::mutex> lock(plugin_lock);
 	StartProcessing();
 	plugin->processReplacing(plugin.get(), input_output, input_output, block_size);
 	StopProcessing();
@@ -198,6 +207,7 @@ std::string PluginVST2::GetPresetExtension() {
 
 void PluginVST2::SetBypass(bool bypass_) {
 	if (bypass != bypass_) {
+		std::lock_guard<std::mutex> lock(plugin_lock);
 		bypass = bypass_;
 		if (soft_bypass)
 			Dispatcher(AEffectXOpcodes::effSetBypass, 0, bypass);
@@ -205,7 +215,7 @@ void PluginVST2::SetBypass(bool bypass_) {
 }
 
 bool PluginVST2::BypassProcess() const {	// wywolanie process omijaj tylko wtedy, jak
-	return bypass && !soft_bypass;	// bypass == true i wtyczka nie obsluguje soft bypass
+	return (bypass && !soft_bypass) || !active;	// bypass == true i wtyczka nie obsluguje soft bypass
 }
 
 bool PluginVST2::HasEditor() const {
