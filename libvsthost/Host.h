@@ -7,6 +7,7 @@
 #include <windows.h>
 
 namespace VSTHost {
+
 enum class SpeakerArrangement {
 	Unknown,
 	Mono = 1,
@@ -15,17 +16,17 @@ enum class SpeakerArrangement {
 	Surround_7_1 = 8
 };
 
-
 class IHostController;
 class HostController;
 class HostObserver;
+
 class Host {
 friend HostController;
 public:
 	static constexpr auto kPluginDirectory{ ".\\..\\..\\plugins" };
 	static constexpr auto kPluginList{ ".\\..\\vsthost.ini" };
 
-	Host(std::int64_t max_num_samples, double sample_rate); // max_num_samples is maximum number of samples per channel
+	Host(std::int64_t max_num_samples, double sample_rate, SpeakerArrangement sa = SpeakerArrangement::Stereo); // max_num_samples is maximum number of samples per channel
 	~Host();
 	void Process(float** input, float** output, std::int64_t num_samples); // num_samples - samples per channel
 	void Process(char* input, char* output, std::int64_t num_samples);

@@ -351,12 +351,10 @@ private:
 		for (auto i = 0u; i < 2; ++i) {
 			smart_buffers[i].clear();
 			buffers_ptrs[i].clear();
-			std::vector<std::unique_ptr<Steinberg::Vst::Sample32[]>> v(GetChannelCount());
-			for (auto j = 0u; j < GetChannelCount(); ++i) {
-				v.emplace_back(block_size);
-				buffers_ptrs[i].push_back(v.back().get());
+			for (auto j = 0u; j < GetChannelCount(); ++j) {
+				smart_buffers[i].push_back(std::move(std::make_unique<Steinberg::Vst::Sample32[]>(block_size)));
+				buffers_ptrs[i].push_back(smart_buffers[i][j].get());
 			}
-			smart_buffers[i] = std::move(v);
 			buffers[i] = buffers_ptrs[i].data();
 		}
 	}

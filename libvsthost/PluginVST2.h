@@ -11,6 +11,8 @@
 #include "Plugin.h"
 #include "PluginLoader.h"
 
+struct VstSpeakerArrangement;
+enum VstSpeakerType;
 namespace VSTHost {
 class PresetVST3;
 class PluginVST2 : public Plugin {
@@ -28,6 +30,7 @@ public:
 	void ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinberg::Vst::TSamples block_size) override;
 	void SetBlockSize(Steinberg::Vst::TSamples bs) override;
 	void SetSampleRate(Steinberg::Vst::SampleRate sr) override;
+	bool SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) override;
 	// presets
 	Steinberg::uint32 GetProgramCount() const override;
 	void SetProgram(Steinberg::uint32 id) override;
@@ -49,7 +52,7 @@ public:
 	void ShowEditor() override;
 	void HideEditor() override;
 	// vst2 callback procedure wrapper
-	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
+	static VstIntPtr VSTCALLBACK HostCallbackWrapper(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void* ptr, float opt);
 private:
 	void Resume() override;
 	void Suspend() override;
@@ -58,11 +61,14 @@ private:
 	// vst2 specific
 	HWND hwnd; // editor windows handle
 	VstIntPtr VSTCALLBACK Dispatcher(VstInt32 opcode, VstInt32 index = 0, VstIntPtr value = 0, void* ptr = nullptr, float opt = 0.);
-	VstIntPtr VSTCALLBACK HostCallback(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
-	bool CanDo(const char *canDo) const;
+	VstIntPtr VSTCALLBACK HostCallback(AEffect* effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void* ptr, float opt);
+	bool CanDo(const char* canDo) const;
 	Steinberg::int32 GetVendorVersion() const;
 	Steinberg::int32 GetVSTVersion() const;
 	Steinberg::int32 GetFlags() const;
+	VstInt32 GetVST2SpeakerArrangementType(Steinberg::Vst::SpeakerArrangement sa);
+	VstSpeakerType GetVST2SpeakerType(Steinberg::Vst::Speaker speaker);
+	void GetVST2SpeakerArrangement(VstSpeakerArrangement& sa_vst2, Steinberg::Vst::SpeakerArrangement sa_vst3);
 	// soft bypass
 	bool soft_bypass{ false };
 	std::unique_ptr<AEffect> plugin;

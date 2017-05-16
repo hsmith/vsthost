@@ -46,7 +46,7 @@ bool PluginManager::Add(const std::string& path) {
 		try {
 			plugin->Initialize(def_block_size, def_sample_rate);
 			if (!plugin->SetSpeakerArrangement(def_speaker_arrangement)) {
-				std::cout << "Plugin does not accept the speaker arrangement!" << std::endl;
+				std::cout << plugin->GetPluginName() << " does not accept the speaker arrangement!" << std::endl;
 				return false;
 			}
 			plugin->LoadState();

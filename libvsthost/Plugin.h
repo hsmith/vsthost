@@ -75,10 +75,10 @@ protected:
 	bool active{ false };
 	bool bypass{ false };
 	// can stereo
-	bool can_stereo{ false };
+	bool proper_in_out_num{ false };
 	Steinberg::Vst::TSamples block_size;
 	Steinberg::Vst::SampleRate sample_rate;
-	Steinberg::Vst::SpeakerArrangement speaker_arrangement;
+	Steinberg::Vst::SpeakerArrangement speaker_arrangement{ Steinberg::Vst::SpeakerArr::kStereo };
 	std::unique_ptr<Preset> state;
 	bool has_editor{ false };
 };
