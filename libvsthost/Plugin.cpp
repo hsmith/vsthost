@@ -4,13 +4,15 @@
 #include "PluginWindow.h"
 
 namespace VSTHost {
-Plugin::Plugin(HMODULE m) : module(m) {
+Plugin::Plugin(HMODULE m, Steinberg::Vst::SpeakerArrangement sa)
+	: module(m)
+	, speaker_arrangement(sa) {
 
 }
 
 Plugin::~Plugin() {
 	if (module) {
-		::Sleep(100);
+		//::Sleep(100);
 		::FreeLibrary(module);
 	}
 }
@@ -84,6 +86,6 @@ bool Plugin::LoadState(const std::string& path) {
 }
 
 Steinberg::uint32 Plugin::GetChannelCount() {
-	return 2;
+	return static_cast<Steinberg::uint32>(Steinberg::Vst::SpeakerArr::getChannelCount(speaker_arrangement));
 }
 } // namespace

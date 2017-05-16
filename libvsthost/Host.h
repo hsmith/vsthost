@@ -7,16 +7,30 @@
 #include <windows.h>
 
 namespace VSTHost {
+class SpeakerArrangement {
+public:
+	enum Types {
+		Mono = 1,
+		Stereo = 2,
+		Surround_5_1 = 6,
+		Surround_7_1 = 8
+	} type;
+	SpeakerArrangement(Types t);
+	explicit SpeakerArrangement(uint32_t channels);
+	operator std::uint64_t() const;
+};
+
 class IHostController;
 class HostController;
 class HostObserver;
+
 class Host {
 friend HostController;
 public:
 	static constexpr auto kPluginDirectory{ ".\\..\\..\\plugins" };
 	static constexpr auto kPluginList{ ".\\..\\vsthost.ini" };
 
-	Host(std::int64_t max_num_samples, double sample_rate); // max_num_samples is maximum number of samples per channel
+	Host(std::int64_t max_num_samples, double sample_rate, SpeakerArrangement sa = SpeakerArrangement::Stereo); // max_num_samples is maximum number of samples per channel
 	~Host();
 	void Process(float** input, float** output, std::int64_t num_samples); // num_samples - samples per channel
 	void Process(char* input, char* output, std::int64_t num_samples);
@@ -26,6 +40,7 @@ public:
 	void ProcessReplace(std::int16_t* input_output, std::int64_t num_samples);
 	void SetSampleRate(double sr);
 	void SetBlockSize(std::int64_t bs);
+	void SetSpeakerArrangement(SpeakerArrangement sa);
 	void CreateGUIThread();
 	void CreateGUI();
 	bool LoadPluginList(const std::string& path);

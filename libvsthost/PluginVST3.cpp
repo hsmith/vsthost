@@ -22,8 +22,11 @@ DEF_CLASS_IID(Steinberg::IBStream)
 extern "C" typedef bool (PLUGIN_API *VST3ExitProc)();
 
 namespace VSTHost {
-PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c)
-	: Plugin(m), factory(f), class_index(0), context(c) {
+PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c, Steinberg::Vst::SpeakerArrangement sa)
+	: Plugin(m, sa)
+	, factory(f)
+	, class_index(0)
+	, context(c) {
 	pd.inputs = nullptr;
 	pd.outputs = nullptr;
 	pd.inputParameterChanges = nullptr;
@@ -60,9 +63,8 @@ PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnkn
 						if (bi_out.channelCount == GetChannelCount() && bi_out.busType == Steinberg::Vst::BusTypes::kMain)
 							break;
 					}
-					Steinberg::Vst::SpeakerArrangement sa = Steinberg::Vst::SpeakerArr::kStereo;
-					can_stereo = (bi_out.channelCount == GetChannelCount() && bi_in.channelCount == GetChannelCount())
-						|| audio->setBusArrangements(&sa, 1, &sa, 1) == Steinberg::kResultOk;
+					proper_in_out_num = (bi_out.channelCount == GetChannelCount() && bi_in.channelCount == GetChannelCount())
+						|| audio->setBusArrangements(&speaker_arrangement, 1, &speaker_arrangement, 1) == Steinberg::kResultOk;
 				}
 			}
 		}
@@ -79,7 +81,7 @@ PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnkn
 		processor_component = nullptr;
 		edit_controller = nullptr;
 		audio = nullptr;
-		can_stereo = false;
+		proper_in_out_num = false;
 		separated = false;
 	}
 }
@@ -131,7 +133,7 @@ Plugin::IsValidCodes PluginVST3::IsValid() const {
 		factory2->release();
 		std::string subcategory(ci2.subCategories, ci2.kSubCategoriesSize);
 		if (!std::strcmp(ci2.category, "Audio Module Class") && subcategory.find("Fx") != std::string::npos) {
-			if (can_stereo) {
+			if (proper_in_out_num) {
 				if (edit_controller && audio && processor_component)
 					return IsValidCodes::kValid;
 				else
@@ -324,34 +326,54 @@ void PluginVST3::ProcessReplace(Steinberg::Vst::Sample32** input_output, Steinbe
 }
 
 void PluginVST3::SetBlockSize(Steinberg::Vst::TSamples bs) {
-	bool was_active;
-	if (was_active = IsActive())
-		SetActive(false);
-	block_size = bs;
-	Steinberg::Vst::ProcessSetup ps;
-	ps.symbolicSampleSize = Steinberg::Vst::kSample32;
-	ps.processMode = Steinberg::Vst::kRealtime;
-	ps.sampleRate = sample_rate;
-	ps.maxSamplesPerBlock = block_size;
-	audio->setupProcessing(ps);
-	pd.numSamples = block_size;
-	if (was_active)
-		SetActive(true);
+	if (bs != block_size) {
+		bool was_active;
+		if (was_active = IsActive())
+			SetActive(false);
+		block_size = bs;
+		Steinberg::Vst::ProcessSetup ps;
+		ps.symbolicSampleSize = Steinberg::Vst::kSample32;
+		ps.processMode = Steinberg::Vst::kRealtime;
+		ps.sampleRate = sample_rate;
+		ps.maxSamplesPerBlock = block_size;
+		audio->setupProcessing(ps);
+		pd.numSamples = block_size;
+		if (was_active)
+			SetActive(true);
+	}
 }
 
 void PluginVST3::SetSampleRate(Steinberg::Vst::SampleRate sr) {
-	bool was_active;
-	if (was_active = IsActive())
-		SetActive(false);
-	sample_rate = sr;
-	Steinberg::Vst::ProcessSetup ps;
-	ps.symbolicSampleSize = Steinberg::Vst::kSample32;
-	ps.processMode = Steinberg::Vst::kRealtime;
-	ps.sampleRate = sample_rate;
-	ps.maxSamplesPerBlock = block_size;
-	audio->setupProcessing(ps);
-	if (was_active)
-		SetActive(true);
+	if (sr != sample_rate) {
+		bool was_active;
+		if (was_active = IsActive())
+			SetActive(false);
+		sample_rate = sr;
+		Steinberg::Vst::ProcessSetup ps;
+		ps.symbolicSampleSize = Steinberg::Vst::kSample32;
+		ps.processMode = Steinberg::Vst::kRealtime;
+		ps.sampleRate = sample_rate;
+		ps.maxSamplesPerBlock = block_size;
+		audio->setupProcessing(ps);
+		if (was_active)
+			SetActive(true);
+	}
+}
+
+
+bool PluginVST3::SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) {
+	if (sa != speaker_arrangement) {
+		bool was_active;
+		if (was_active = IsActive())
+			SetActive(false);
+		speaker_arrangement = sa;
+		auto ret = audio->setBusArrangements(&speaker_arrangement, 1, &speaker_arrangement, 1);
+		if (was_active)
+			SetActive(true);
+		return ret == Steinberg::kResultOk;
+	}
+	else
+		return true;
 }
 
 Steinberg::uint32 PluginVST3::GetProgramCount() const {
