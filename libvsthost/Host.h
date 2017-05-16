@@ -15,7 +15,7 @@ public:
 		Surround_5_1 = 6,
 		Surround_7_1 = 8
 	} type;
-	SpeakerArrangement(Types type);
+	SpeakerArrangement(Types t);
 	explicit SpeakerArrangement(uint32_t channels);
 	operator std::uint64_t() const;
 };
@@ -40,6 +40,7 @@ public:
 	void ProcessReplace(std::int16_t* input_output, std::int64_t num_samples);
 	void SetSampleRate(double sr);
 	void SetBlockSize(std::int64_t bs);
+	void SetSpeakerArrangement(SpeakerArrangement sa);
 	void CreateGUIThread();
 	void CreateGUI();
 	bool LoadPluginList(const std::string& path);

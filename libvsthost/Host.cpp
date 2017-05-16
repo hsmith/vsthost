@@ -126,12 +126,11 @@ public:
 		}
 	}
 
-	void SetSpeakerArrangement(SpeakerArrangement sa) {
-		auto sa_vst = static_cast<Steinberg::Vst::SpeakerArrangement>(sa);
+	void SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa) {
 		if (sa != speaker_arrangement) {
-			speaker_arrangement = sa_vst;
+			speaker_arrangement = sa;
 			std::lock_guard<std::mutex> lock(plugins.GetLock());
-			plugins.SetSpeakerArrangement(sa_vst);
+			plugins.SetSpeakerArrangement(sa);
 			AllocateBuffers();
 		}
 	}
@@ -456,6 +455,10 @@ void Host::SetSampleRate(double sr) {
 
 void Host::SetBlockSize(std::int64_t bs) {
 	impl->SetBlockSize(bs);
+}
+
+void Host::SetSpeakerArrangement(SpeakerArrangement sa) {
+	impl->SetSpeakerArrangement(sa);
 }
 
 void Host::CreateGUIThread() {

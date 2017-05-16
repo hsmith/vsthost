@@ -149,10 +149,25 @@ void PluginManager::SetSpeakerArrangement(Steinberg::Vst::SpeakerArrangement sa)
 	for (idx_t i = 0; i < Size(); ++i)
 		if (!plugins[i]->SetSpeakerArrangement(def_speaker_arrangement)) {
 			to_delete.push_back(i); // registering which plugins did not accept new SpeakerArrangement
-			std::cout << plugins[i]->GetPluginName() << " did not accept new speaker arranegement." << std::endl;
+			std::cout << plugins[i]->GetPluginName() << " did not accept new speaker arrangement." << std::endl;
 		}
-	for (auto it = to_delete.crbegin(); it != to_delete.crend(); ++it)
-		Delete(*it); // to unload these plugins, going from back to front to not disrupt indices
+	if (to_delete.size()) { // to unload these plugins, going from back to front to not disrupt indices
+		for (auto it = to_delete.crbegin(); it != to_delete.crend(); ++it) { 
+			auto idx = *it; // code is duplicated b/o a deadlock
+			try {			// TODO: make it better
+				plugins.erase(plugins.begin() + idx);
+			}
+			catch (...) {
+				plugins[idx].release();
+				plugins.erase(plugins.begin() + idx);
+				std::cout << "Error unloading plugin." << std::endl;
+			}
+		}
+		queue.clear();
+		for (auto& p : plugins)
+			if (p->IsActive() && !p->IsBypassed())
+				queue.push_back(p.get());
+	}
 }
 
 std::vector<Plugin*>& PluginManager::GetQueue() {

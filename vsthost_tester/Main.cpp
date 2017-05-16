@@ -144,8 +144,8 @@ int main() {
 	sample_rate = static_cast<double>(wave.GetSampleRate());
 	VSTHost::Host host(block_size, sample_rate);
 	h = &host;
-	host.LoadPluginList();
 	std::thread processing(play);
+	host.LoadPluginList();
 	host.CreateGUI();
 	processing.join();
 }
