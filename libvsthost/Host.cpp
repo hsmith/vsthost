@@ -16,13 +16,33 @@ DEF_CLASS_IID(Steinberg::Vst::IHostApplication)
 #include "PluginManager.h"
 
 namespace VSTHost {
+SpeakerArrangement::SpeakerArrangement(Types t)
+	: type(t) {
+
+}
+	
+SpeakerArrangement::SpeakerArrangement(std::uint32_t channels)
+	: SpeakerArrangement(static_cast<Types>(channels)) {
+
+}
+
+SpeakerArrangement::operator std::uint64_t() const {
+	switch (type) {
+		case SpeakerArrangement::Mono: return Steinberg::Vst::SpeakerArr::kMono;
+		case SpeakerArrangement::Stereo: return Steinberg::Vst::SpeakerArr::kStereo;
+		case SpeakerArrangement::Surround_5_1: return Steinberg::Vst::SpeakerArr::k51;
+		case SpeakerArrangement::Surround_7_1: return Steinberg::Vst::SpeakerArr::k71Cine; // ?
+		default: return Steinberg::Vst::SpeakerArr::kEmpty;
+	}
+}
+
 class Host::HostImpl : public HostSubject, public Steinberg::Vst::IHostApplication {
 	friend class HostController;
 public:
 	HostImpl(std::int64_t block_size, double sample_rate, SpeakerArrangement sa)
 	: block_size(block_size)
 	, sample_rate(sample_rate)
-	, speaker_arrangement(GetVSTSpeakerArrangement(sa))
+	, speaker_arrangement(sa)
 	, plugins(block_size, sample_rate, speaker_arrangement, UnknownCast()) {
 		AllocateBuffers();
 	}
@@ -106,19 +126,9 @@ public:
 		}
 	}
 
-	Steinberg::Vst::SpeakerArrangement GetVSTSpeakerArrangement(SpeakerArrangement sa) {
-		switch (sa) {
-		case SpeakerArrangement::Mono: return Steinberg::Vst::SpeakerArr::kMono;
-		case SpeakerArrangement::Stereo: return Steinberg::Vst::SpeakerArr::kStereo;
-		case SpeakerArrangement::Surround_5_1: return Steinberg::Vst::SpeakerArr::k51;
-		case SpeakerArrangement::Surround_7_1: return Steinberg::Vst::SpeakerArr::k71Cine; // ?
-		default: return Steinberg::Vst::SpeakerArr::kEmpty;
-		}
-	}
-
 	void SetSpeakerArrangement(SpeakerArrangement sa) {
-		auto sa_vst = GetVSTSpeakerArrangement(sa);
-		if (sa_vst != speaker_arrangement) {
+		auto sa_vst = static_cast<Steinberg::Vst::SpeakerArrangement>(sa);
+		if (sa != speaker_arrangement) {
 			speaker_arrangement = sa_vst;
 			std::lock_guard<std::mutex> lock(plugins.GetLock());
 			plugins.SetSpeakerArrangement(sa_vst);
@@ -388,7 +398,6 @@ private:
 		return static_cast<Steinberg::FUnknown *>(this);
 	}
 
-	PluginManager plugins;
 	std::unique_ptr<HostWindow> gui;
 	std::thread ui_thread;
 	std::mutex processing_lock;
@@ -404,6 +413,8 @@ private:
 	Steinberg::Vst::Sample32** buffers[2]{};
 	std::vector<Steinberg::Vst::Sample32*> buffers_ptrs[2];
 	std::vector<std::unique_ptr<Steinberg::Vst::Sample32[]>> smart_buffers[2];
+
+	PluginManager plugins;
 };
 
 Host::Host(std::int64_t max_num_samples, double sample_rate, SpeakerArrangement sa) 

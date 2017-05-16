@@ -7,13 +7,17 @@
 #include <windows.h>
 
 namespace VSTHost {
-
-enum class SpeakerArrangement {
-	Unknown,
-	Mono = 1,
-	Stereo = 2,
-	Surround_5_1 = 6,
-	Surround_7_1 = 8
+class SpeakerArrangement {
+public:
+	enum Types {
+		Mono = 1,
+		Stereo = 2,
+		Surround_5_1 = 6,
+		Surround_7_1 = 8
+	} type;
+	SpeakerArrangement(Types type);
+	explicit SpeakerArrangement(uint32_t channels);
+	operator std::uint64_t() const;
 };
 
 class IHostController;
