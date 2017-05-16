@@ -17,8 +17,8 @@ namespace VSTHost {
 class PresetVST3;
 class PluginVST2 : public Plugin {
 	friend class PresetVST2;
-	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context);
-	PluginVST2(HMODULE m, AEffect* p);
+	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context, Steinberg::Vst::SpeakerArrangement sa);
+	PluginVST2(HMODULE m, AEffect* p, Steinberg::Vst::SpeakerArrangement sa);
 public:
 	~PluginVST2();
 	// basic plugin interface

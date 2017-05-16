@@ -23,10 +23,10 @@ class ParameterValueQueue;
 class ParameterChanges;
 class PluginVST3 : public Plugin, public Steinberg::Vst::IComponentHandler {
 	friend class PresetVST3;
-	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context);
+	friend std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context,  Steinberg::Vst::SpeakerArrangement sa);
 public:
 	// basic plugin interface
-	PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c);
+	PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c, Steinberg::Vst::SpeakerArrangement sa);
 	~PluginVST3();
 	IsValidCodes IsValid() const override;
 	void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr) override;

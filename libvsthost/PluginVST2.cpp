@@ -7,8 +7,9 @@
 #include "PresetVST2.h"
 
 namespace VSTHost {
-PluginVST2::PluginVST2(HMODULE m, AEffect* p)
-	: Plugin(m), plugin(p) {
+PluginVST2::PluginVST2(HMODULE m, AEffect* p, Steinberg::Vst::SpeakerArrangement sa)
+	: Plugin(m, sa)
+	, plugin(p) {
 	plugin->resvd1 = reinterpret_cast<VstIntPtr>(this);
 
 	// try setting correct number of inputs and outputs if there's a need

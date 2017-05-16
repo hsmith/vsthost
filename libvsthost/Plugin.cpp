@@ -4,7 +4,9 @@
 #include "PluginWindow.h"
 
 namespace VSTHost {
-Plugin::Plugin(HMODULE m) : module(m) {
+Plugin::Plugin(HMODULE m, Steinberg::Vst::SpeakerArrangement sa)
+	: module(m)
+	, speaker_arrangement(sa) {
 
 }
 

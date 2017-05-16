@@ -21,7 +21,7 @@ public:
 		kIsNotEffect
 	};
 	// basic plugin interface
-	Plugin(HMODULE m);
+	Plugin(HMODULE m, Steinberg::Vst::SpeakerArrangement sa);
 	virtual ~Plugin();
 	virtual IsValidCodes IsValid() const = 0;
 	virtual void Initialize(Steinberg::Vst::TSamples bs, Steinberg::Vst::SampleRate sr) = 0;

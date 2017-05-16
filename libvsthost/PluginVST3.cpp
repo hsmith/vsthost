@@ -22,8 +22,11 @@ DEF_CLASS_IID(Steinberg::IBStream)
 extern "C" typedef bool (PLUGIN_API *VST3ExitProc)();
 
 namespace VSTHost {
-PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c)
-	: Plugin(m), factory(f), class_index(0), context(c) {
+PluginVST3::PluginVST3(HMODULE m, Steinberg::IPluginFactory* f, Steinberg::FUnknown* c, Steinberg::Vst::SpeakerArrangement sa)
+	: Plugin(m, sa)
+	, factory(f)
+	, class_index(0)
+	, context(c) {
 	pd.inputs = nullptr;
 	pd.outputs = nullptr;
 	pd.inputParameterChanges = nullptr;

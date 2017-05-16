@@ -16,7 +16,7 @@ extern "C" {
 }
 
 namespace VSTHost {
-std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context) {
+std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::FUnknown* context, Steinberg::Vst::SpeakerArrangement sa) {
 	std::unique_ptr<Plugin> ret;
 	try {
 		auto module = ::LoadLibraryA(path.c_str());
@@ -29,7 +29,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 				Steinberg::IPluginFactory* factory = nullptr;
 				GetFactoryProc getFactory = reinterpret_cast<GetFactoryProc>(proc);
 				factory = getFactory(); // retrieving factory pointer from factory proc
-				ret = std::unique_ptr<PluginVST3>(new PluginVST3(module, factory, context));
+				ret = std::unique_ptr<PluginVST3>(new PluginVST3(module, factory, context, sa));
 			}
 			else {
 				proc = ::GetProcAddress(module, "VSTPluginMain");
@@ -39,7 +39,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 					AEffect* effect = nullptr;
 					VSTInitProc init_proc = reinterpret_cast<VSTInitProc>(proc);
 					effect = init_proc(PluginVST2::HostCallbackWrapper);
-					ret = std::unique_ptr<PluginVST2>(new PluginVST2(module, effect));
+					ret = std::unique_ptr<PluginVST2>(new PluginVST2(module, effect, sa));
 				}
 				else
 					std::cerr << "Error loading plugin: Could not locate plugin entry procedure in " << path << "." << std::endl;
@@ -68,7 +68,7 @@ std::unique_ptr<Plugin> PluginLoader::Load(const std::string& path, Steinberg::F
 				std::cerr << path << " is not an effect.";
 				break;
 			case Plugin::IsValidCodes::kWrongInOutNum:
-				std::cerr << path << " does not support stereo.";
+				std::cerr << path << " does not support this speaker arrangement.";
 				break;
 			case Plugin::IsValidCodes::kInvalid:
 				std::cerr << path << " is invalid.";

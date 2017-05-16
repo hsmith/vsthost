@@ -41,7 +41,7 @@ std::mutex& PluginManager::GetLock() {
 }
 
 bool PluginManager::Add(const std::string& path) {
-	auto plugin = PluginLoader::Load(path, vst3_context);
+	auto plugin = PluginLoader::Load(path, vst3_context, def_speaker_arrangement);
 	if (plugin) { // host now owns what plugin points at
 		try {
 			plugin->Initialize(def_block_size, def_sample_rate);
